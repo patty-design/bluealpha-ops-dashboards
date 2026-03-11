@@ -13,7 +13,7 @@ def serve_html(path):
     html = html.replace('__AIRTABLE_BASE__', BASE_ID)
     return Response(html, mimetype='text/html')
 
-@app.route('/')
+@app.route('/production')
 def production():
     return serve_html('index.html')
 
