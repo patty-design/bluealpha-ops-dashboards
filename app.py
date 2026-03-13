@@ -11,7 +11,11 @@ def serve_html(path):
         html = f.read()
     html = html.replace('__AIRTABLE_TOKEN__', TOKEN)
     html = html.replace('__AIRTABLE_BASE__', BASE_ID)
-    return Response(html, mimetype='text/html')
+    return Response(html, mimetype='text/html', headers={
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+    })
 
 @app.route('/production')
 def production():
