@@ -474,7 +474,8 @@
       const ts = new Date().toLocaleTimeString('en-US', {
         timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true
       });
-      document.getElementById('last-updated').textContent = `Updated ${ts}`;
+      document.getElementById('last-updated').textContent = `Updated ${ts} · Refreshing in ${REFRESH_MS / 1000}s`;
+      startCountdown();
 
     } catch (err) {
       console.error('Refresh error:', err);
@@ -482,6 +483,21 @@
     } finally {
       document.getElementById('loader').classList.add('hidden');
     }
+  }
+
+  let countdownTimer = null;
+  let secondsLeft = REFRESH_MS / 1000;
+
+  function startCountdown() {
+    clearInterval(countdownTimer);
+    secondsLeft = REFRESH_MS / 1000;
+    countdownTimer = setInterval(() => {
+      secondsLeft--;
+      const el = document.getElementById('last-updated');
+      if (el && el.textContent.includes('·')) {
+        el.textContent = el.textContent.replace(/Refreshing in \d+s/, `Refreshing in ${secondsLeft}s`);
+      }
+    }, 1000);
   }
 
   refresh();
