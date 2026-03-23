@@ -246,6 +246,22 @@
 
     <div class="field">
       <label>
+        Hours you plan to work today
+        <span class="hint">Default is 10 — change if working fewer hours</span>
+      </label>
+      <input
+        type="number"
+        id="targetHours"
+        value="10"
+        min="1"
+        max="10"
+        step="0.25"
+        inputmode="decimal"
+      />
+    </div>
+
+    <div class="field">
+      <label>
         Hours worked this morning
         <span class="hint">Decimal shown in Paycom — e.g. 4.75</span>
       </label>
@@ -305,6 +321,7 @@
   <script>
     function calculate() {
       const hoursInput = document.getElementById('hoursBeforeLunch').value;
+      const targetInput = document.getElementById('targetHours').value;
       const errorEl = document.getElementById('errorMsg');
       const resultEl = document.getElementById('result');
       const resetBtn = document.getElementById('resetBtn');
@@ -315,6 +332,16 @@
       resetBtn.className = 'reset-btn';
 
       // Validate
+      if (targetInput === '' || isNaN(parseFloat(targetInput))) {
+        showError('Please enter how many hours you plan to work today.');
+        return;
+      }
+      const targetHours = parseFloat(targetInput);
+      if (targetHours <= 0 || targetHours > 10) {
+        showError('Target hours must be between 1 and 10.');
+        return;
+      }
+
       if (hoursInput === '' || isNaN(parseFloat(hoursInput))) {
         showError('Please enter your hours worked before lunch.');
         return;
@@ -329,15 +356,15 @@
       }
 
       const hoursBefore = parseFloat(hoursInput);
-      if (hoursBefore < 0 || hoursBefore >= 10) {
-        showError('Hours before lunch must be between 0 and 9.99.');
+      if (hoursBefore < 0 || hoursBefore >= targetHours) {
+        showError(`Hours before lunch must be less than your target of ${targetHours} hrs.`);
         return;
       }
 
-      const hoursRemaining = 10 - hoursBefore;
+      const hoursRemaining = targetHours - hoursBefore;
 
       if (hoursRemaining <= 0) {
-        showError("You've already worked 10 hours today. Time to head out!");
+        showError("You've already hit your target hours for today. Time to head out!");
         resetBtn.className = 'reset-btn visible';
         return;
       }
@@ -366,7 +393,7 @@
 
       document.getElementById('leaveTime').textContent = leaveTimeStr;
       document.getElementById('resultDetail').innerHTML =
-        `<span>${remStr}</span> left after lunch · <span>${hoursBefore.toFixed(2)} hrs</span> worked this morning`;
+        `<span>${remStr}</span> left after lunch · <span>${hoursBefore.toFixed(2)} hrs</span> this morning · <span>${targetHours} hr</span> day`;
 
       resultEl.className = 'result visible';
       resetBtn.className = 'reset-btn visible';
@@ -387,6 +414,7 @@
     }
 
     function reset() {
+      document.getElementById('targetHours').value = '10';
       document.getElementById('hoursBeforeLunch').value = '';
       document.getElementById('lunchHour').value = '';
       document.getElementById('lunchMin').value = '';
