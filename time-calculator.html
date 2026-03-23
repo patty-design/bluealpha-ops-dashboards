@@ -101,6 +101,29 @@
       opacity: 1;
     }
 
+    select {
+      width: 100%;
+      padding: 14px 12px;
+      font-size: 17px;
+      border: 2px solid #b0aa96;
+      border-radius: 10px;
+      background: #fff;
+      color: #1B2438;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235B7FA0' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 30px;
+      cursor: pointer;
+    }
+
+    select:focus {
+      border-color: #5B7FA0;
+    }
+
     .calculate-btn {
       width: 100%;
       padding: 16px;
@@ -242,10 +265,26 @@
         Time you clocked back in from lunch
         <span class="hint">What time did you punch back in?</span>
       </label>
-      <input
-        type="time"
-        id="lunchReturn"
-      />
+      <div style="display:flex; gap:8px; align-items:center;">
+        <select id="lunchHour" style="flex:1;">
+          <option value="">Hour</option>
+          <option>6</option><option>7</option><option>8</option><option>9</option>
+          <option>10</option><option>11</option><option>12</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option>
+        </select>
+        <select id="lunchMin" style="flex:1;">
+          <option value="">Min</option>
+          <option>00</option><option>05</option><option>10</option><option>15</option>
+          <option>20</option><option>25</option><option>30</option><option>35</option>
+          <option>40</option><option>45</option><option>50</option><option>55</option>
+        </select>
+        <select id="lunchAmPm" style="flex:0.7;">
+          <option value="">AM/PM</option>
+          <option>AM</option>
+          <option>PM</option>
+        </select>
+      </div>
     </div>
 
     <button class="calculate-btn" onclick="calculate()">Calculate Leave Time</button>
@@ -266,7 +305,6 @@
   <script>
     function calculate() {
       const hoursInput = document.getElementById('hoursBeforeLunch').value;
-      const lunchInput = document.getElementById('lunchReturn').value;
       const errorEl = document.getElementById('errorMsg');
       const resultEl = document.getElementById('result');
       const resetBtn = document.getElementById('resetBtn');
@@ -281,8 +319,12 @@
         showError('Please enter your hours worked before lunch.');
         return;
       }
-      if (!lunchInput) {
-        showError('Please enter the time you clocked back in from lunch.');
+      const lunchHourVal = document.getElementById('lunchHour').value;
+      const lunchMinVal = document.getElementById('lunchMin').value;
+      const lunchAmPmVal = document.getElementById('lunchAmPm').value;
+
+      if (!lunchHourVal || !lunchMinVal || !lunchAmPmVal) {
+        showError('Please select the hour, minute, and AM/PM for your lunch return time.');
         return;
       }
 
@@ -300,9 +342,11 @@
         return;
       }
 
-      // Parse lunch return time
-      const [lunchHour, lunchMin] = lunchInput.split(':').map(Number);
-      const lunchTotalMins = lunchHour * 60 + lunchMin;
+      // Parse lunch return time from dropdowns
+      let lunchHour24 = parseInt(lunchHourVal);
+      if (lunchAmPmVal === 'AM' && lunchHour24 === 12) lunchHour24 = 0;
+      if (lunchAmPmVal === 'PM' && lunchHour24 !== 12) lunchHour24 += 12;
+      const lunchTotalMins = lunchHour24 * 60 + parseInt(lunchMinVal);
 
       // Calculate leave time
       const remainingMins = Math.round(hoursRemaining * 60);
@@ -344,7 +388,9 @@
 
     function reset() {
       document.getElementById('hoursBeforeLunch').value = '';
-      document.getElementById('lunchReturn').value = '';
+      document.getElementById('lunchHour').value = '';
+      document.getElementById('lunchMin').value = '';
+      document.getElementById('lunchAmPm').value = '';
       document.getElementById('errorMsg').className = 'error';
       document.getElementById('result').className = 'result';
       document.getElementById('resetBtn').className = 'reset-btn';
