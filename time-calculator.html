@@ -262,7 +262,7 @@
 
     <div class="field">
       <label>
-        Hours worked this morning
+        Hours worked before your break
         <span class="hint">Decimal shown in Paycom — e.g. 4.75</span>
       </label>
       <input
@@ -278,7 +278,7 @@
 
     <div class="field">
       <label>
-        Time you clocked back in from lunch
+        Time you clocked back in from your break
         <span class="hint">What time did you punch back in?</span>
       </label>
       <div style="display:flex; gap:8px; align-items:center;">
@@ -392,7 +392,7 @@
 
       document.getElementById('leaveTime').textContent = leaveTimeStr;
       document.getElementById('resultDetail').innerHTML =
-        `<span>${remStr}</span> left after lunch · <span>${hoursBefore.toFixed(2)} hrs</span> this morning · <span>${targetHours} hr</span> day`;
+        `<span>${remStr}</span> left after break · <span>${hoursBefore.toFixed(2)} hrs</span> before break · <span>${targetHours} hr</span> day`;
 
       resultEl.className = 'result visible';
       resetBtn.className = 'reset-btn visible';
