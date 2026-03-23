@@ -29,6 +29,10 @@ def shipments():
 def waiting():
     return serve_html('waiting/index.html')
 
+@app.route('/time-calculator')
+def time_calculator():
+    return serve_html('time-calculator.html')
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port)

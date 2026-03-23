@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Leave Time Calculator — Blue Alpha</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #1B2438;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .card {
+      background: #DDD8C4;
+      border-radius: 16px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .logo-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .logo-bar .brand {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7B2318;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #1B2438;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #5B7FA0;
+      margin-bottom: 28px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #1B2438;
+      margin-bottom: 8px;
+    }
+
+    label .hint {
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: #5B7FA0;
+      font-size: 12px;
+      display: block;
+      margin-top: 2px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 18px;
+      border: 2px solid #b0aa96;
+      border-radius: 10px;
+      background: #fff;
+      color: #1B2438;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input:focus {
+      border-color: #5B7FA0;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      opacity: 1;
+    }
+
+    .calculate-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: #7B2318;
+      color: #DDD8C4;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .calculate-btn:active {
+      background: #BD3333;
+      transform: scale(0.98);
+    }
+
+    .result {
+      display: none;
+      margin-top: 24px;
+      background: #1B2438;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .result.visible {
+      display: block;
+    }
+
+    .result-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #5B7FA0;
+      margin-bottom: 6px;
+    }
+
+    .result-time {
+      font-size: 42px;
+      font-weight: 900;
+      color: #DDD8C4;
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .result-detail {
+      font-size: 13px;
+      color: #5B7FA0;
+    }
+
+    .result-detail span {
+      color: #DDD8C4;
+      font-weight: 600;
+    }
+
+    .error {
+      display: none;
+      margin-top: 16px;
+      background: #BD3333;
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .error.visible {
+      display: block;
+    }
+
+    .reset-btn {
+      display: none;
+      width: 100%;
+      margin-top: 12px;
+      padding: 11px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #7B2318;
+      background: transparent;
+      border: 2px solid #7B2318;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .reset-btn:active {
+      background: #7B2318;
+      color: #DDD8C4;
+    }
+
+    .reset-btn.visible {
+      display: block;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 11px;
+      color: #5B7FA0;
+      text-align: center;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo-bar">
+      <span class="brand">Blue Alpha Belts</span>
+    </div>
+
+    <h1>Leave Time Calculator</h1>
+    <p class="subtitle">Find out when you need to clock out today.</p>
+
+    <div class="field">
+      <label>
+        Hours worked this morning
+        <span class="hint">Decimal shown in Paycom — e.g. 4.75</span>
+      </label>
+      <input
+        type="number"
+        id="hoursBeforeLunch"
+        placeholder="e.g. 4.75"
+        min="0"
+        max="10"
+        step="0.01"
+        inputmode="decimal"
+      />
+    </div>
+
+    <div class="field">
+      <label>
+        Time you clocked back in from lunch
+        <span class="hint">What time did you punch back in?</span>
+      </label>
+      <input
+        type="time"
+        id="lunchReturn"
+      />
+    </div>
+
+    <button class="calculate-btn" onclick="calculate()">Calculate Leave Time</button>
+
+    <div class="error" id="errorMsg"></div>
+
+    <div class="result" id="result">
+      <div class="result-label">You need to leave by</div>
+      <div class="result-time" id="leaveTime">—</div>
+      <div class="result-detail" id="resultDetail"></div>
+    </div>
+
+    <button class="reset-btn" id="resetBtn" onclick="reset()">Start Over</button>
+  </div>
+
+  <div class="footer">10-hour daily limit · Blue Alpha Belts</div>
+
+  <script>
+    function calculate() {
+      const hoursInput = document.getElementById('hoursBeforeLunch').value;
+      const lunchInput = document.getElementById('lunchReturn').value;
+      const errorEl = document.getElementById('errorMsg');
+      const resultEl = document.getElementById('result');
+      const resetBtn = document.getElementById('resetBtn');
+
+      // Reset state
+      errorEl.className = 'error';
+      resultEl.className = 'result';
+      resetBtn.className = 'reset-btn';
+
+      // Validate
+      if (hoursInput === '' || isNaN(parseFloat(hoursInput))) {
+        showError('Please enter your hours worked before lunch.');
+        return;
+      }
+      if (!lunchInput) {
+        showError('Please enter the time you clocked back in from lunch.');
+        return;
+      }
+
+      const hoursBefore = parseFloat(hoursInput);
+      if (hoursBefore < 0 || hoursBefore >= 10) {
+        showError('Hours before lunch must be between 0 and 9.99.');
+        return;
+      }
+
+      const hoursRemaining = 10 - hoursBefore;
+
+      if (hoursRemaining <= 0) {
+        showError("You've already worked 10 hours today. Time to head out!");
+        resetBtn.className = 'reset-btn visible';
+        return;
+      }
+
+      // Parse lunch return time
+      const [lunchHour, lunchMin] = lunchInput.split(':').map(Number);
+      const lunchTotalMins = lunchHour * 60 + lunchMin;
+
+      // Calculate leave time
+      const remainingMins = Math.round(hoursRemaining * 60);
+      const leaveTotalMins = lunchTotalMins + remainingMins;
+
+      const leaveHour = Math.floor(leaveTotalMins / 60) % 24;
+      const leaveMin = leaveTotalMins % 60;
+
+      const leaveTimeStr = formatTime(leaveHour, leaveMin);
+
+      // Format remaining time for detail line
+      const remH = Math.floor(remainingMins / 60);
+      const remM = remainingMins % 60;
+      const remStr = remH > 0
+        ? (remM > 0 ? `${remH} hr ${remM} min` : `${remH} hr`)
+        : `${remM} min`;
+
+      document.getElementById('leaveTime').textContent = leaveTimeStr;
+      document.getElementById('resultDetail').innerHTML =
+        `<span>${remStr}</span> left after lunch · <span>${hoursBefore.toFixed(2)} hrs</span> worked this morning`;
+
+      resultEl.className = 'result visible';
+      resetBtn.className = 'reset-btn visible';
+    }
+
+    function formatTime(hour, min) {
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+      const displayMin = String(min).padStart(2, '0');
+      return `${displayHour}:${displayMin} ${ampm}`;
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.className = 'error visible';
+      document.getElementById('resetBtn').className = 'reset-btn visible';
+    }
+
+    function reset() {
+      document.getElementById('hoursBeforeLunch').value = '';
+      document.getElementById('lunchReturn').value = '';
+      document.getElementById('errorMsg').className = 'error';
+      document.getElementById('result').className = 'result';
+      document.getElementById('resetBtn').className = 'reset-btn';
+    }
+
+    // Allow Enter key to trigger calculate
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') calculate();
+    });
+  </script>
+</body>
+</html>
