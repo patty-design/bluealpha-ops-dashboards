@@ -124,6 +124,30 @@
       border-color: #5B7FA0;
     }
 
+    .ampm-btn {
+      flex: 1;
+      padding: 14px 6px;
+      font-size: 16px;
+      font-weight: 700;
+      border: 2px solid #b0aa96;
+      border-radius: 10px;
+      background: #fff;
+      color: #b0aa96;
+      cursor: pointer;
+      transition: all 0.15s;
+      -webkit-appearance: none;
+    }
+
+    .ampm-btn.selected {
+      background: #1B2438;
+      border-color: #1B2438;
+      color: #DDD8C4;
+    }
+
+    .ampm-btn:active {
+      transform: scale(0.96);
+    }
+
     .calculate-btn {
       width: 100%;
       padding: 16px;
@@ -302,11 +326,11 @@
           inputmode="numeric"
           style="flex:1;"
         />
-        <select id="lunchAmPm" style="flex:0.7;">
-          <option value="">AM/PM</option>
-          <option>AM</option>
-          <option>PM</option>
-        </select>
+        <div style="flex:0.9; display:flex; gap:6px;">
+          <button type="button" id="btnAM" class="ampm-btn" onclick="selectAmPm('AM')">AM</button>
+          <button type="button" id="btnPM" class="ampm-btn" onclick="selectAmPm('PM')">PM</button>
+        </div>
+        <input type="hidden" id="lunchAmPm" value="" />
       </div>
     </div>
 
@@ -326,6 +350,12 @@
   <div class="footer">10-hour daily limit · Blue Alpha Belts</div>
 
   <script>
+    function selectAmPm(val) {
+      document.getElementById('lunchAmPm').value = val;
+      document.getElementById('btnAM').className = 'ampm-btn' + (val === 'AM' ? ' selected' : '');
+      document.getElementById('btnPM').className = 'ampm-btn' + (val === 'PM' ? ' selected' : '');
+    }
+
     function calculate() {
       const hoursInput = document.getElementById('hoursBeforeLunch').value;
       const targetInput = document.getElementById('targetHours').value;
@@ -435,6 +465,8 @@
       document.getElementById('hoursBeforeLunch').value = '';
       document.getElementById('lunchHour').value = '';
       document.getElementById('lunchMin').value = '';
+      document.getElementById('btnAM').className = 'ampm-btn';
+      document.getElementById('btnPM').className = 'ampm-btn';
       document.getElementById('lunchAmPm').value = '';
       document.getElementById('lunchAmPm').value = '';
       document.getElementById('errorMsg').className = 'error';
