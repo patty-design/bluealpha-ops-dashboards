@@ -33,6 +33,14 @@ def waiting():
 def time_calculator():
     return serve_html('time-calculator.html')
 
+@app.route('/needs-manager-attention.jpg')
+def nma_flowchart():
+    with open('needs-manager-attention.jpg', 'rb') as f:
+        return Response(f.read(), mimetype='image/jpeg', headers={
+            'Cache-Control': 'no-cache',
+            'Content-Disposition': 'inline; filename="needs-manager-attention.jpg"',
+        })
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port)
