@@ -33,6 +33,15 @@ def waiting():
 def time_calculator():
     return serve_html('time-calculator.html')
 
+@app.route('/qr-card-<int:num>.jpg')
+def qr_card(num):
+    fname = f'qr-card-{num}.jpg'
+    try:
+        with open(fname, 'rb') as f:
+            return Response(f.read(), mimetype='image/jpeg', headers={'Cache-Control': 'no-cache'})
+    except FileNotFoundError:
+        return Response('Not found', status=404)
+
 @app.route('/needs-manager-attention.jpg')
 def nma_flowchart():
     with open('needs-manager-attention.jpg', 'rb') as f:
