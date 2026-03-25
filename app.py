@@ -65,6 +65,19 @@ def hosanna_jpg():
             'Cache-Control': 'no-cache',
         })
 
+@app.route('/qr-cards-4up.pdf')
+def qr_cards_pdf():
+    with open('qr-cards-4up.pdf', 'rb') as f:
+        return Response(f.read(), mimetype='application/pdf', headers={
+            'Cache-Control': 'no-cache',
+            'Content-Disposition': 'inline; filename="qr-cards-4up.pdf"',
+        })
+
+@app.route('/qr-cards-4up.jpg')
+def qr_cards_jpg():
+    with open('qr-cards-4up.jpg', 'rb') as f:
+        return Response(f.read(), mimetype='image/jpeg', headers={'Cache-Control': 'no-cache'})
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port)
