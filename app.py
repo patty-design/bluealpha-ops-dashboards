@@ -50,6 +50,21 @@ def nma_flowchart():
             'Content-Disposition': 'inline; filename="needs-manager-attention.jpg"',
         })
 
+@app.route('/hosanna-4up.pdf')
+def hosanna_pdf():
+    with open('hosanna-4up.pdf', 'rb') as f:
+        return Response(f.read(), mimetype='application/pdf', headers={
+            'Cache-Control': 'no-cache',
+            'Content-Disposition': 'inline; filename="hosanna-4up.pdf"',
+        })
+
+@app.route('/hosanna-4up.jpg')
+def hosanna_jpg():
+    with open('hosanna-4up.jpg', 'rb') as f:
+        return Response(f.read(), mimetype='image/jpeg', headers={
+            'Cache-Control': 'no-cache',
+        })
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port)
