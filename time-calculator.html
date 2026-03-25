@@ -10,12 +10,12 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #1B2438;
-      min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 24px 16px;
+      justify-content: flex-start;
+      padding: 16px;
     }
 
     .card {
@@ -24,6 +24,7 @@
       padding: 32px 24px;
       width: 100%;
       max-width: 380px;
+      min-height: calc(100dvh - 32px);
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
 
