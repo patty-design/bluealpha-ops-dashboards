@@ -414,10 +414,14 @@
 //  CONFIG
 // ═══════════════════════════════════════════════════════
 const CONFIG = {
+  // Ops base — Product SKUs for category map
   pat:            '__AIRTABLE_TOKEN__',
   baseId:         '__AIRTABLE_BASE__',
-  shipmentsTable: 'tblI3XvUpsDIphcqp',
   skusTable:      'tbljngm75r4Km2XIN',
+  // Automated Data base — Shipments
+  shipmentsPat:   '__SHIPMENTS_TOKEN__',
+  shipmentsBase:  '__SHIPMENTS_BASE__',
+  shipmentsTable: 'tblrfthvKPOSmx0S6',
   timezone:       'America/New_York',
   refreshSec:     60,
 };
@@ -479,7 +483,9 @@ function getTimeBounds() {
 // ═══════════════════════════════════════════════════════
 //  AIRTABLE FETCH
 // ═══════════════════════════════════════════════════════
-async function fetchRecords(tableId, filter, fields) {
+async function fetchRecords(tableId, filter, fields, baseId, pat) {
+  const _base = baseId || CONFIG.baseId;
+  const _pat  = pat    || CONFIG.pat;
   const all = [];
   let offset = null;
   do {
@@ -489,8 +495,8 @@ async function fetchRecords(tableId, filter, fields) {
     if (offset) p.set('offset', offset);
 
     const res = await fetch(
-      `https://api.airtable.com/v0/${CONFIG.baseId}/${tableId}?${p}`,
-      { headers: { Authorization: `Bearer ${CONFIG.pat}` } }
+      `https://api.airtable.com/v0/${_base}/${tableId}?${p}`,
+      { headers: { Authorization: `Bearer ${_pat}` } }
     );
     if (!res.ok) {
       const e = await res.json().catch(() => ({}));
@@ -514,12 +520,14 @@ async function refresh() {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 21);
 
-    // Parallel fetch: shipments + SKU category map
+    // Parallel fetch: shipments (Automated Data base) + SKU category map (ops base)
     const [shipments, skuRecords] = await Promise.all([
       fetchRecords(
         CONFIG.shipmentsTable,
         `IS_AFTER({Date}, "${cutoff.toISOString()}")`,
-        ['Date', 'Total Components', 'Order Number', 'SKUs', 'SKU Quantities']
+        ['Date', 'Total Components', 'Order Number', 'SKUs', 'SKU Quantities'],
+        CONFIG.shipmentsBase,
+        CONFIG.shipmentsPat
       ),
       fetchRecords(
         CONFIG.skusTable,

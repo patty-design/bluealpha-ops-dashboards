@@ -3,14 +3,18 @@ from flask import Flask, Response
 
 app = Flask(__name__)
 
-TOKEN   = os.environ.get('AIRTABLE_TOKEN', '')
-BASE_ID = os.environ.get('AIRTABLE_BASE', '')
+TOKEN           = os.environ.get('AIRTABLE_TOKEN', '')
+BASE_ID         = os.environ.get('AIRTABLE_BASE', '')
+SHIPMENTS_TOKEN = os.environ.get('SHIPMENTS_TOKEN', '')
+SHIPMENTS_BASE  = os.environ.get('SHIPMENTS_BASE', '')
 
 def serve_html(path):
     with open(path, 'r') as f:
         html = f.read()
     html = html.replace('__AIRTABLE_TOKEN__', TOKEN)
     html = html.replace('__AIRTABLE_BASE__', BASE_ID)
+    html = html.replace('__SHIPMENTS_TOKEN__', SHIPMENTS_TOKEN)
+    html = html.replace('__SHIPMENTS_BASE__', SHIPMENTS_BASE)
     return Response(html, mimetype='text/html', headers={
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
