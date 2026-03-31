@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📣 Marketing · Blue Alpha</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f4f6f9;
+    color: #1a1a2e;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: #1B2438;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+  .header .subtitle { font-size: 0.8rem; color: #8fa3c0; margin-top: 2px; }
+
+  /* Page body */
+  .page { max-width: 1200px; margin: 0 auto; padding: 28px 24px; }
+
+  /* Section tabs */
+  .section-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 24px;
+  }
+  .section-tab {
+    padding: 11px 24px;
+    border: none;
+    background: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #94a3b8;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.15s;
+  }
+  .section-tab.active { color: #1B2438; border-bottom-color: #BD3333; }
+  .section-tab:hover:not(.active) { color: #475569; }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .toolbar select, .toolbar input[type="text"] {
+    padding: 8px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #374151;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .toolbar select:focus, .toolbar input:focus { border-color: #5B7FA0; }
+  .toolbar input[type="text"] { width: 200px; }
+  .btn-add {
+    margin-left: auto;
+    padding: 8px 18px;
+    background: #BD3333;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-add:hover { background: #a02a2a; }
+
+  /* Campaign cards */
+  .campaigns-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .campaign-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px 20px;
+    border: 1.5px solid #e8ecf2;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .campaign-card:hover {
+    border-color: #5B7FA0;
+    box-shadow: 0 2px 8px rgba(91,127,160,0.12);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .card-subject {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.35;
+    flex: 1;
+  }
+  .card-date {
+    font-size: 0.8rem;
+    color: #6b7280;
+    white-space: nowrap;
+    font-weight: 500;
+    padding-top: 2px;
+  }
+  .card-date.upcoming { color: #BD3333; font-weight: 700; }
+  .card-date.soon { color: #d97706; font-weight: 700; }
+
+  .card-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  /* Team status row */
+  .team-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+  }
+  .team-person {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .team-initial {
+    font-size: 0.65rem;
+    color: #9ca3af;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .team-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,0,0,0.1);
+  }
+
+  /* File # */
+  .file-num {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    font-weight: 600;
+    white-space: nowrap;
+    margin-left: 4px;
+  }
+
+  /* Ideas */
+  .ideas-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .idea-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 20px;
+    border: 1.5px solid #e8ecf2;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .idea-card:hover {
+    border-color: #5B7FA0;
+    box-shadow: 0 2px 8px rgba(91,127,160,0.12);
+  }
+  .idea-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111827;
+    flex: 1;
+  }
+  .idea-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .idea-submitter {
+    font-size: 0.78rem;
+    color: #6b7280;
+    font-weight: 500;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #94a3b8;
+  }
+  .empty-state .emoji { font-size: 2.5rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.95rem; margin-bottom: 16px; }
+
+  /* ---- DRAWER ---- */
+  .drawer-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.25);
+    z-index: 100;
+    backdrop-filter: blur(1px);
+  }
+  .drawer-backdrop.open { display: block; }
+
+  .drawer {
+    position: fixed;
+    top: 0;
+    right: -520px;
+    width: 500px;
+    max-width: 95vw;
+    height: 100vh;
+    background: #fff;
+    z-index: 101;
+    overflow-y: auto;
+    transition: right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+  }
+  .drawer.open { right: 0; }
+
+  .drawer-header {
+    padding: 20px 24px;
+    border-bottom: 1.5px solid #e8ecf2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .drawer-title { font-size: 1.05rem; font-weight: 700; color: #1a1a2e; }
+  .drawer-close {
+    width: 32px; height: 32px;
+    border: none;
+    background: #e8ecf2;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: #6b7280;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .drawer-close:hover { background: #d1d5db; color: #374151; }
+
+  .drawer-body {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .field-group label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .field-group input, .field-group select, .field-group textarea {
+    padding: 9px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #374151;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  .field-group input:focus, .field-group select:focus, .field-group textarea:focus {
+    border-color: #5B7FA0;
+    box-shadow: 0 0 0 3px rgba(91,127,160,0.1);
+  }
+  .field-group textarea { resize: vertical; min-height: 72px; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e8ecf2;
+  }
+
+  .team-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .checkrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    color: #374151;
+    cursor: pointer;
+  }
+  .checkrow input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: #BD3333; }
+
+  .drawer-footer {
+    padding: 16px 24px;
+    border-top: 1.5px solid #e8ecf2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8fafc;
+    position: sticky;
+    bottom: 0;
+  }
+  .btn-save {
+    flex: 1;
+    padding: 10px;
+    background: #BD3333;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-save:hover { background: #a02a2a; }
+  .btn-cancel {
+    padding: 10px 18px;
+    background: #f1f5f9;
+    color: #374151;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-cancel:hover { background: #e2e8f0; }
+  .btn-delete {
+    padding: 10px 14px;
+    background: none;
+    color: #ef4444;
+    border: 1.5px solid #fecaca;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-delete:hover { background: #fee2e2; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1a1a2e;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    z-index: 200;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Count badge */
+  .count-pill {
+    background: #e8ecf2;
+    color: #6b7280;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>📣 Marketing</h1>
+    <div class="subtitle">Blue Alpha · Campaigns & Ideas</div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="section-tabs">
+    <button class="section-tab active" id="tab-btn-campaigns" onclick="showSection('campaigns')">
+      📧 Campaigns <span class="count-pill" id="campaigns-count">—</span>
+    </button>
+    <button class="section-tab" id="tab-btn-ideas" onclick="showSection('ideas')">
+      💡 Ideas <span class="count-pill" id="ideas-count">—</span>
+    </button>
+  </div>
+
+  <!-- CAMPAIGNS -->
+  <div id="section-campaigns">
+    <div class="toolbar">
+      <select id="filter-status" onchange="renderCampaigns()">
+        <option value="">All Statuses</option>
+        <option>Idea</option><option>Planning</option>
+        <option>In Progress</option><option>Ready</option><option>Sent</option>
+      </select>
+      <select id="filter-type" onchange="renderCampaigns()">
+        <option value="">All Types</option>
+        <option>New Product</option><option>General</option>
+        <option>YouTube</option><option>Limited Run</option>
+      </select>
+      <input type="text" id="search-campaigns" placeholder="🔍 Search campaigns..." oninput="renderCampaigns()">
+      <button class="btn-add" onclick="openCampaignDrawer(null)">+ Add Campaign</button>
+    </div>
+    <div class="campaigns-list" id="campaigns-list">
+      <div class="empty-state"><div class="emoji">⏳</div><p>Loading campaigns...</p></div>
+    </div>
+  </div>
+
+  <!-- IDEAS -->
+  <div id="section-ideas" style="display:none">
+    <div class="toolbar">
+      <select id="filter-idea-status" onchange="renderIdeas()">
+        <option value="">All Statuses</option>
+        <option>New</option><option>Considering</option>
+        <option>Approved</option><option>Scheduled</option><option>Declined</option>
+      </select>
+      <select id="filter-idea-cat" onchange="renderIdeas()">
+        <option value="">All Categories</option>
+        <option>New BA Product</option><option>Limited Run</option>
+        <option>Custom Shop</option><option>YouTube</option>
+        <option>New Other Product</option><option>General</option>
+      </select>
+      <select id="filter-idea-by" onchange="renderIdeas()">
+        <option value="">All Submitters</option>
+        <option>Stephen</option><option>Kurt</option><option>Jesse</option>
+        <option>Kelly</option><option>Patty</option><option>Chris</option>
+      </select>
+      <input type="text" id="search-ideas" placeholder="🔍 Search ideas..." oninput="renderIdeas()">
+      <button class="btn-add" onclick="openIdeaDrawer(null)">+ Add Idea</button>
+    </div>
+    <div class="ideas-list" id="ideas-list">
+      <div class="empty-state"><div class="emoji">⏳</div><p>Loading ideas...</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- DRAWER BACKDROP -->
+<div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
+
+<!-- CAMPAIGN DRAWER -->
+<div class="drawer" id="campaign-drawer">
+  <div class="drawer-header">
+    <span class="drawer-title" id="campaign-drawer-title">Add Campaign</span>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div class="field-group" style="grid-column:1/-1">
+      <label>Subject / Topic *</label>
+      <input type="text" id="cm-subject" placeholder="What's this campaign about?">
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Type</label>
+        <select id="cm-type">
+          <option value="">— Select —</option>
+          <option>New Product</option><option>General</option>
+          <option>YouTube</option><option>Limited Run</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Status</label>
+        <select id="cm-status">
+          <option value="">— Select —</option>
+          <option>Idea</option><option>Planning</option>
+          <option>In Progress</option><option>Ready</option><option>Sent</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Send Date</label>
+        <input type="date" id="cm-date">
+      </div>
+      <div class="field-group">
+        <label>File #</label>
+        <input type="number" id="cm-file" placeholder="—">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Revenue ($)</label>
+        <input type="number" id="cm-revenue" placeholder="—" step="0.01">
+      </div>
+      <div class="field-group" style="justify-content:flex-end;padding-top:20px">
+        <label class="checkrow">
+          <input type="checkbox" id="cm-social"> Social Posts
+        </label>
+        <label class="checkrow">
+          <input type="checkbox" id="cm-waitlist"> Waitlist / Dealer / Agency
+        </label>
+      </div>
+    </div>
+
+    <div class="section-label">Team Task Status</div>
+    <div class="team-fields">
+      <div class="field-group">
+        <label>Stephen – Content</label>
+        <select id="cm-stephen">
+          <option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Kurt – Photos</label>
+        <select id="cm-kurt-photos">
+          <option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Kurt – YouTube</label>
+        <select id="cm-kurt-yt">
+          <option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Kelly – Listing</label>
+        <select id="cm-kelly">
+          <option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Patty – Email</label>
+        <select id="cm-patty">
+          <option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Chris – SKU/BOM/BOL</label>
+        <select id="cm-chris">
+          <option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Notes</label>
+      <textarea id="cm-notes" placeholder="Any additional notes..."></textarea>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-delete" id="cm-delete-btn" onclick="deleteCampaign()" style="display:none">Delete</button>
+    <button class="btn-cancel" onclick="closeDrawer()">Cancel</button>
+    <button class="btn-save" onclick="saveCampaign()">Save Campaign</button>
+  </div>
+</div>
+
+<!-- IDEA DRAWER -->
+<div class="drawer" id="idea-drawer">
+  <div class="drawer-header">
+    <span class="drawer-title" id="idea-drawer-title">Add Idea</span>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div class="field-group">
+      <label>Idea *</label>
+      <textarea id="id-idea" placeholder="Describe the idea..." style="min-height:90px"></textarea>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Category</label>
+        <select id="id-cat">
+          <option value="">— Select —</option>
+          <option>New BA Product</option><option>Limited Run</option>
+          <option>Custom Shop</option><option>YouTube</option>
+          <option>New Other Product</option><option>General</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Status</label>
+        <select id="id-status">
+          <option value="">— Select —</option>
+          <option>New</option><option>Considering</option>
+          <option>Approved</option><option>Scheduled</option><option>Declined</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Submitted By</label>
+        <select id="id-by">
+          <option value="">— Select —</option>
+          <option>Stephen</option><option>Kurt</option><option>Jesse</option>
+          <option>Kelly</option><option>Patty</option><option>Chris</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Linked Campaign</label>
+        <input type="text" id="id-campaign" placeholder="—">
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Notes</label>
+      <textarea id="id-notes" placeholder="Any additional context..."></textarea>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-delete" id="id-delete-btn" onclick="deleteIdea()" style="display:none">Delete</button>
+    <button class="btn-cancel" onclick="closeDrawer()">Cancel</button>
+    <button class="btn-save" onclick="saveIdea()">Save Idea</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const AT_TOKEN = '__PATTY_TOKEN__';
+const BASE_ID  = 'appTCZwoETAInVuiX';
+const MKT_CAMPAIGNS_TABLE = 'tblxj6Nouo4DfzVwA';
+const MKT_IDEAS_TABLE     = 'tbldunjKUpRLtZAqW';
+
+let campaigns = [], ideas = [];
+let editingCampaignId = null, editingIdeaId = null;
+let activeDrawer = null;
+
+// ---- Airtable helpers ----
+async function atFetchAll(table, params) {
+  let records = [], offset = null;
+  do {
+    const p = offset ? `${params}&offset=${offset}` : params;
+    const r = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${table}?${p}`,
+      { headers: { Authorization: `Bearer ${AT_TOKEN}` } });
+    const d = await r.json();
+    records = records.concat(d.records || []);
+    offset = d.offset;
+  } while (offset);
+  return records;
+}
+async function atCreate(table, fields) {
+  const r = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${table}`,
+    { method: 'POST', headers: { Authorization: `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields }) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function atUpdate(table, id, fields) {
+  const r = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${table}/${id}`,
+    { method: 'PATCH', headers: { Authorization: `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields }) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function atDelete(table, id) {
+  await fetch(`https://api.airtable.com/v0/${BASE_ID}/${table}/${id}`,
+    { method: 'DELETE', headers: { Authorization: `Bearer ${AT_TOKEN}` } });
+}
+
+// ---- Color maps ----
+const STATUS_COLORS  = { Idea:'#94a3b8', Planning:'#f59e0b', 'In Progress':'#3b82f6', Ready:'#8b5cf6', Sent:'#22c55e' };
+const TYPE_COLORS    = { 'New Product':'#3b82f6', General:'#6b7280', YouTube:'#ef4444', 'Limited Run':'#10b981' };
+const IDEA_STATUS    = { New:'#6b7280', Considering:'#f59e0b', Approved:'#3b82f6', Scheduled:'#8b5cf6', Declined:'#ef4444' };
+const CAT_COLORS     = { 'New BA Product':'#3b82f6', 'Limited Run':'#10b981', 'Custom Shop':'#f59e0b',
+                         YouTube:'#ef4444', 'New Other Product':'#6366f1', General:'#6b7280' };
+const DOT_COLORS     = { Done:'#22c55e', 'In Progress':'#f59e0b', 'Not Started':'#d1d5db', 'N/A':'#c4b5fd' };
+
+function badge(val, map) {
+  if (!val) return '<span style="color:#d1d5db;font-size:0.78rem">—</span>';
+  const bg = map[val] || '#9ca3af';
+  return `<span class="badge" style="background:${bg}">${val}</span>`;
+}
+
+function dot(val) {
+  const bg = DOT_COLORS[val] || '#e5e7eb';
+  return `<div class="team-dot" style="background:${bg}" title="${val||'—'}"></div>`;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr + 'T12:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((d - today) / 86400000);
+  const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  let cls = 'card-date';
+  if (diff >= 0 && diff <= 3) cls += ' upcoming';
+  else if (diff > 3 && diff <= 7) cls += ' soon';
+  return { label, cls };
+}
+
+const TEAM = [
+  ['S', 'Stephen - Content'],
+  ['K📷', 'Kurt - Photos'],
+  ['K▶', 'Kurt - YouTube'],
+  ['Ke', 'Kelly - Listing'],
+  ['P', 'Patty - Email'],
+  ['C', 'Chris - SKU/BOM/BOL'],
+];
+
+// ---- Section toggle ----
+function showSection(name) {
+  ['campaigns','ideas'].forEach(s => {
+    document.getElementById(`section-${s}`).style.display = s === name ? '' : 'none';
+    document.getElementById(`tab-btn-${s}`).classList.toggle('active', s === name);
+  });
+}
+
+// ---- Render campaigns ----
+function renderCampaigns() {
+  const sf = document.getElementById('filter-status').value;
+  const tf = document.getElementById('filter-type').value;
+  const q  = document.getElementById('search-campaigns').value.toLowerCase();
+
+  const data = campaigns.filter(r => {
+    const f = r.fields;
+    if (sf && f['Status'] !== sf) return false;
+    if (tf && f['Type']   !== tf) return false;
+    if (q  && !(f['Subject / Topic']||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  document.getElementById('campaigns-count').textContent = data.length;
+  const el = document.getElementById('campaigns-list');
+
+  if (!data.length) {
+    el.innerHTML = `<div class="empty-state"><div class="emoji">📭</div><p>No campaigns match your filters.</p><button class="btn-add" onclick="openCampaignDrawer(null)">+ Add Campaign</button></div>`;
+    return;
+  }
+
+  el.innerHTML = data.map(rec => {
+    const f = rec.fields;
+    const dateInfo = formatDate(f['Send Date']);
+    const teamHtml = TEAM.map(([init, field]) => `
+      <div class="team-person">
+        <span class="team-initial">${init}</span>
+        ${dot(f[field]||'')}
+      </div>`).join('');
+
+    return `<div class="campaign-card" onclick="openCampaignDrawer('${rec.id}')">
+      <div class="card-top">
+        <div class="card-subject">${f['Subject / Topic'] || '—'}</div>
+        ${dateInfo ? `<div class="${dateInfo.cls}">${dateInfo.label}</div>` : '<div class="card-date">No date</div>'}
+      </div>
+      <div class="card-bottom">
+        <div class="card-meta">
+          ${badge(f['Status'], STATUS_COLORS)}
+          ${badge(f['Type'], TYPE_COLORS)}
+          ${f['File #'] ? `<span class="file-num">File #${f['File #']}</span>` : ''}
+        </div>
+        <div class="team-row">${teamHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---- Render ideas ----
+function renderIdeas() {
+  const sf = document.getElementById('filter-idea-status').value;
+  const cf = document.getElementById('filter-idea-cat').value;
+  const bf = document.getElementById('filter-idea-by').value;
+  const q  = document.getElementById('search-ideas').value.toLowerCase();
+
+  const data = ideas.filter(r => {
+    const f = r.fields;
+    if (sf && f['Status']       !== sf) return false;
+    if (cf && f['Category']     !== cf) return false;
+    if (bf && f['Submitted By'] !== bf) return false;
+    if (q  && !(f['Idea']||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  document.getElementById('ideas-count').textContent = data.length;
+  const el = document.getElementById('ideas-list');
+
+  if (!data.length) {
+    el.innerHTML = `<div class="empty-state"><div class="emoji">💭</div><p>No ideas found.</p><button class="btn-add" onclick="openIdeaDrawer(null)">+ Add Idea</button></div>`;
+    return;
+  }
+
+  el.innerHTML = data.map(rec => {
+    const f = rec.fields;
+    return `<div class="idea-card" onclick="openIdeaDrawer('${rec.id}')">
+      <div class="idea-text">${f['Idea'] || '—'}</div>
+      <div class="idea-meta">
+        ${f['Submitted By'] ? `<span class="idea-submitter">${f['Submitted By']}</span>` : ''}
+        ${badge(f['Category'], CAT_COLORS)}
+        ${badge(f['Status'], IDEA_STATUS)}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---- Drawer ----
+function openDrawer(drawerId) {
+  closeDrawer();
+  activeDrawer = drawerId;
+  document.getElementById('drawer-backdrop').classList.add('open');
+  document.getElementById(drawerId).classList.add('open');
+}
+function closeDrawer() {
+  if (activeDrawer) {
+    document.getElementById(activeDrawer).classList.remove('open');
+    activeDrawer = null;
+  }
+  document.getElementById('drawer-backdrop').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+// ---- Campaign drawer ----
+function openCampaignDrawer(id) {
+  editingCampaignId = id;
+  document.getElementById('campaign-drawer-title').textContent = id ? 'Edit Campaign' : 'Add Campaign';
+  document.getElementById('cm-delete-btn').style.display = id ? 'inline-block' : 'none';
+  const f = id ? (campaigns.find(r => r.id === id) || {}).fields || {} : {};
+  document.getElementById('cm-subject').value       = f['Subject / Topic'] || '';
+  document.getElementById('cm-type').value          = f['Type'] || '';
+  document.getElementById('cm-date').value          = f['Send Date'] || '';
+  document.getElementById('cm-status').value        = f['Status'] || '';
+  document.getElementById('cm-file').value          = f['File #'] || '';
+  document.getElementById('cm-revenue').value       = f['Revenue'] || '';
+  document.getElementById('cm-social').checked      = !!f['Social Posts'];
+  document.getElementById('cm-waitlist').checked    = !!f['Waitlist / Dealer / Agency'];
+  document.getElementById('cm-stephen').value       = f['Stephen - Content'] || '';
+  document.getElementById('cm-kurt-photos').value   = f['Kurt - Photos'] || '';
+  document.getElementById('cm-kurt-yt').value       = f['Kurt - YouTube'] || '';
+  document.getElementById('cm-kelly').value         = f['Kelly - Listing'] || '';
+  document.getElementById('cm-patty').value         = f['Patty - Email'] || '';
+  document.getElementById('cm-chris').value         = f['Chris - SKU/BOM/BOL'] || '';
+  document.getElementById('cm-notes').value         = f['Notes'] || '';
+  openDrawer('campaign-drawer');
+}
+
+async function saveCampaign() {
+  const sub = document.getElementById('cm-subject').value.trim();
+  if (!sub) { showToast('Subject / Topic is required'); return; }
+  const fields = { 'Subject / Topic': sub };
+  const v = (elId, key) => { const val = document.getElementById(elId).value; if (val) fields[key] = val; };
+  v('cm-type', 'Type'); v('cm-date', 'Send Date'); v('cm-status', 'Status');
+  const fn = document.getElementById('cm-file').value; if (fn) fields['File #'] = parseInt(fn);
+  const rv = document.getElementById('cm-revenue').value; if (rv) fields['Revenue'] = parseFloat(rv);
+  fields['Social Posts'] = document.getElementById('cm-social').checked;
+  fields['Waitlist / Dealer / Agency'] = document.getElementById('cm-waitlist').checked;
+  v('cm-stephen', 'Stephen - Content'); v('cm-kurt-photos', 'Kurt - Photos');
+  v('cm-kurt-yt', 'Kurt - YouTube');   v('cm-kelly', 'Kelly - Listing');
+  v('cm-patty', 'Patty - Email');      v('cm-chris', 'Chris - SKU/BOM/BOL');
+  const notes = document.getElementById('cm-notes').value.trim(); if (notes) fields['Notes'] = notes;
+  try {
+    if (editingCampaignId) await atUpdate(MKT_CAMPAIGNS_TABLE, editingCampaignId, fields);
+    else await atCreate(MKT_CAMPAIGNS_TABLE, fields);
+    closeDrawer();
+    campaigns = await atFetchAll(MKT_CAMPAIGNS_TABLE, 'sort[0][field]=Send+Date&sort[0][direction]=asc');
+    renderCampaigns();
+    showToast('Campaign saved ✓');
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+async function deleteCampaign() {
+  if (!editingCampaignId || !confirm('Delete this campaign?')) return;
+  try {
+    await atDelete(MKT_CAMPAIGNS_TABLE, editingCampaignId);
+    closeDrawer();
+    campaigns = await atFetchAll(MKT_CAMPAIGNS_TABLE, 'sort[0][field]=Send+Date&sort[0][direction]=asc');
+    renderCampaigns();
+    showToast('Campaign deleted');
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+// ---- Idea drawer ----
+function openIdeaDrawer(id) {
+  editingIdeaId = id;
+  document.getElementById('idea-drawer-title').textContent = id ? 'Edit Idea' : 'Add Idea';
+  document.getElementById('id-delete-btn').style.display = id ? 'inline-block' : 'none';
+  const f = id ? (ideas.find(r => r.id === id) || {}).fields || {} : {};
+  document.getElementById('id-idea').value     = f['Idea'] || '';
+  document.getElementById('id-cat').value      = f['Category'] || '';
+  document.getElementById('id-status').value   = f['Status'] || '';
+  document.getElementById('id-by').value       = f['Submitted By'] || '';
+  document.getElementById('id-campaign').value = f['Campaign'] || '';
+  document.getElementById('id-notes').value    = f['Notes'] || '';
+  openDrawer('idea-drawer');
+}
+
+async function saveIdea() {
+  const idea = document.getElementById('id-idea').value.trim();
+  if (!idea) { showToast('Idea text is required'); return; }
+  const fields = { 'Idea': idea };
+  const v = (elId, key) => { const val = document.getElementById(elId).value; if (val) fields[key] = val; };
+  v('id-cat', 'Category'); v('id-status', 'Status');
+  v('id-by', 'Submitted By'); v('id-campaign', 'Campaign');
+  const notes = document.getElementById('id-notes').value.trim(); if (notes) fields['Notes'] = notes;
+  try {
+    if (editingIdeaId) await atUpdate(MKT_IDEAS_TABLE, editingIdeaId, fields);
+    else await atCreate(MKT_IDEAS_TABLE, fields);
+    closeDrawer();
+    ideas = await atFetchAll(MKT_IDEAS_TABLE, '');
+    renderIdeas();
+    showToast('Idea saved ✓');
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+async function deleteIdea() {
+  if (!editingIdeaId || !confirm('Delete this idea?')) return;
+  try {
+    await atDelete(MKT_IDEAS_TABLE, editingIdeaId);
+    closeDrawer();
+    ideas = await atFetchAll(MKT_IDEAS_TABLE, '');
+    renderIdeas();
+    showToast('Idea deleted');
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+// ---- Toast ----
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ---- Init ----
+(async () => {
+  [campaigns, ideas] = await Promise.all([
+    atFetchAll(MKT_CAMPAIGNS_TABLE, 'sort[0][field]=Send+Date&sort[0][direction]=asc'),
+    atFetchAll(MKT_IDEAS_TABLE, '')
+  ]);
+  document.getElementById('campaigns-count').textContent = campaigns.length;
+  document.getElementById('ideas-count').textContent = ideas.length;
+  renderCampaigns();
+  renderIdeas();
+})();
+</script>
+</body>
+</html>

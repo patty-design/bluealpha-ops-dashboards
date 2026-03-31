@@ -7,6 +7,7 @@ TOKEN           = os.environ.get('AIRTABLE_TOKEN', '')
 BASE_ID         = os.environ.get('AIRTABLE_BASE', '')
 SHIPMENTS_TOKEN = os.environ.get('SHIPMENTS_TOKEN', '')
 SHIPMENTS_BASE  = os.environ.get('SHIPMENTS_BASE', '')
+PATTY_TOKEN     = os.environ.get('PATTY_TOKEN', '')
 
 def serve_html(path):
     with open(path, 'r') as f:
@@ -15,6 +16,7 @@ def serve_html(path):
     html = html.replace('__AIRTABLE_BASE__', BASE_ID)
     html = html.replace('__SHIPMENTS_TOKEN__', SHIPMENTS_TOKEN)
     html = html.replace('__SHIPMENTS_BASE__', SHIPMENTS_BASE)
+    html = html.replace('__PATTY_TOKEN__', PATTY_TOKEN)
     return Response(html, mimetype='text/html', headers={
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
@@ -36,6 +38,10 @@ def waiting():
 @app.route('/time-calculator')
 def time_calculator():
     return serve_html('time-calculator.html')
+
+@app.route('/marketing-v2')
+def marketing_v2():
+    return serve_html('marketing-v2.html')
 
 @app.route('/qr-card-<int:num>.jpg')
 def qr_card(num):
