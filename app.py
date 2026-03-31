@@ -43,6 +43,11 @@ def time_calculator():
 def marketing_v2():
     return serve_html('marketing-v2.html')
 
+@app.route('/paycom-card.jpg')
+def paycom_card():
+    with open('paycom-card.jpg', 'rb') as f:
+        return Response(f.read(), mimetype='image/jpeg', headers={'Cache-Control': 'no-cache'})
+
 @app.route('/qr-card-<int:num>.jpg')
 def qr_card(num):
     fname = f'qr-card-{num}.jpg'
