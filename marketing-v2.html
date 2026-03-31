@@ -6,7 +6,6 @@
 <title>📣 Marketing · Blue Alpha</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #f4f6f9;
@@ -14,7 +13,6 @@
     min-height: 100vh;
   }
 
-  /* Header */
   .header {
     background: #1B2438;
     padding: 18px 32px;
@@ -22,419 +20,277 @@
     align-items: center;
     justify-content: space-between;
   }
-  .header h1 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -0.3px;
-  }
-  .header .subtitle { font-size: 0.8rem; color: #8fa3c0; margin-top: 2px; }
+  .header h1 { font-size: 1.2rem; font-weight: 700; color: #fff; }
+  .header .sub { font-size: 0.78rem; color: #8fa3c0; margin-top: 2px; }
 
-  /* Page body */
-  .page { max-width: 1200px; margin: 0 auto; padding: 28px 24px; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
 
-  /* Section tabs */
   .section-tabs {
     display: flex;
-    gap: 0;
     border-bottom: 2px solid #e2e8f0;
     margin-bottom: 24px;
   }
-  .section-tab {
-    padding: 11px 24px;
-    border: none;
-    background: none;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #94a3b8;
-    cursor: pointer;
+  .stab {
+    padding: 10px 22px;
+    border: none; background: none;
+    font-size: 0.92rem; font-weight: 600;
+    color: #94a3b8; cursor: pointer;
     border-bottom: 3px solid transparent;
     margin-bottom: -2px;
-    transition: color 0.15s;
   }
-  .section-tab.active { color: #1B2438; border-bottom-color: #BD3333; }
-  .section-tab:hover:not(.active) { color: #475569; }
+  .stab.active { color: #1B2438; border-bottom-color: #BD3333; }
+  .stab:hover:not(.active) { color: #475569; }
+  .cpill {
+    background: #e8ecf2; color: #6b7280;
+    font-size: 0.7rem; font-weight: 700;
+    padding: 2px 7px; border-radius: 20px; margin-left: 5px;
+  }
 
-  /* Toolbar */
   .toolbar {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
+    display: flex; gap: 8px; align-items: center;
+    flex-wrap: wrap; margin-bottom: 18px;
   }
-  .toolbar select, .toolbar input[type="text"] {
-    padding: 8px 12px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    color: #374151;
-    background: #fff;
-    outline: none;
-    transition: border-color 0.15s;
+  .toolbar select, .toolbar input[type=text] {
+    padding: 7px 11px;
+    border: 1.5px solid #e2e8f0; border-radius: 8px;
+    font-size: 0.83rem; color: #374151; background: #fff; outline: none;
   }
   .toolbar select:focus, .toolbar input:focus { border-color: #5B7FA0; }
-  .toolbar input[type="text"] { width: 200px; }
+  .toolbar input[type=text] { width: 190px; }
   .btn-add {
     margin-left: auto;
-    padding: 8px 18px;
-    background: #BD3333;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
+    padding: 7px 16px;
+    background: #BD3333; color: #fff;
+    border: none; border-radius: 8px;
+    font-size: 0.83rem; font-weight: 700; cursor: pointer;
   }
   .btn-add:hover { background: #a02a2a; }
 
-  /* Campaign cards */
-  .campaigns-list { display: flex; flex-direction: column; gap: 8px; }
+  /* ---- Campaign card ---- */
+  .campaigns-list { display: flex; flex-direction: column; gap: 6px; }
 
-  .campaign-card {
+  .ccard {
     background: #fff;
-    border-radius: 10px;
-    padding: 16px 20px;
     border: 1.5px solid #e8ecf2;
-    cursor: pointer;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    display: flex;
-    flex-direction: column;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex; flex-direction: column; gap: 10px;
+    transition: border-color 0.12s;
+  }
+  .ccard:hover { border-color: #c5d3e0; }
+
+  .ccard-top {
+    display: flex; align-items: flex-start;
     gap: 10px;
   }
-  .campaign-card:hover {
-    border-color: #5B7FA0;
-    box-shadow: 0 2px 8px rgba(91,127,160,0.12);
-  }
 
-  .card-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .card-subject {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #111827;
-    line-height: 1.35;
+  /* Inline editable subject */
+  .f-subject {
     flex: 1;
+    font-size: 0.98rem; font-weight: 600; color: #111827;
+    line-height: 1.4;
+    cursor: text;
+    border-radius: 5px;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    transition: background 0.12s;
+    min-height: 1.4em;
   }
-  .card-date {
-    font-size: 0.8rem;
-    color: #6b7280;
-    white-space: nowrap;
-    font-weight: 500;
-    padding-top: 2px;
-  }
-  .card-date.upcoming { color: #BD3333; font-weight: 700; }
-  .card-date.soon { color: #d97706; font-weight: 700; }
+  .f-subject:hover { background: #f0f4f8; }
+  .f-subject:focus { background: #f0f4f8; outline: 2px solid #5B7FA0; outline-offset: 1px; }
 
-  .card-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
+  /* Date field */
+  .f-date-wrap { flex-shrink: 0; }
+  .f-date-display {
+    font-size: 0.78rem; color: #6b7280; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    padding: 3px 7px; border-radius: 6px;
+    transition: background 0.12s;
+    display: inline-block;
   }
-  .card-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
+  .f-date-display:hover { background: #f0f4f8; }
+  .f-date-display.urgent { color: #BD3333; font-weight: 700; }
+  .f-date-display.soon   { color: #d97706; font-weight: 700; }
+  .f-date-display.nodate { color: #c4c9d4; font-style: italic; }
+  input.f-date-input {
+    border: 1.5px solid #5B7FA0; border-radius: 6px;
+    padding: 3px 6px; font-size: 0.78rem; outline: none;
+    background: #f8fafc; font-family: inherit; cursor: pointer;
   }
 
-  /* Badges */
+  .ccard-bottom {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  }
+  .ccard-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+  /* Inline badge selects */
+  .f-badge-wrap { position: relative; display: inline-flex; }
   .badge {
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #fff;
-    white-space: nowrap;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 0.71rem; font-weight: 700; color: #fff;
+    white-space: nowrap; cursor: pointer;
+    transition: filter 0.12s;
   }
-
-  /* Team status row */
-  .team-row {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
+  .badge:hover { filter: brightness(0.9); }
+  .badge.empty {
+    background: #e8ecf2 !important; color: #9ca3af;
+    border: 1.5px dashed #d1d5db;
   }
-  .team-person {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-  }
-  .team-initial {
-    font-size: 0.65rem;
-    color: #9ca3af;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-  }
-  .team-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(0,0,0,0.1);
+  select.f-badge-select {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0; cursor: pointer;
+    font-size: 0; /* hide the text */
   }
 
   /* File # */
-  .file-num {
-    font-size: 0.75rem;
-    color: #9ca3af;
-    font-weight: 600;
-    white-space: nowrap;
+  .f-filenum {
+    font-size: 0.75rem; color: #9ca3af; font-weight: 600;
+    cursor: text; padding: 2px 5px; border-radius: 5px;
+    transition: background 0.12s; white-space: nowrap;
+  }
+  .f-filenum:hover { background: #f0f4f8; }
+  .f-filenum.empty { color: #d1d5db; font-style: italic; }
+  input.f-filenum-input {
+    width: 64px; padding: 2px 5px;
+    border: 1.5px solid #5B7FA0; border-radius: 5px;
+    font-size: 0.75rem; outline: none; font-family: inherit;
+    background: #f8fafc;
+  }
+
+  /* Team dots */
+  .team-row { display: flex; align-items: flex-end; gap: 10px; }
+  .team-person { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .team-initial { font-size: 0.62rem; color: #aab4c0; font-weight: 700; letter-spacing: 0.02em; }
+  .tdot {
+    width: 15px; height: 15px; border-radius: 50%;
+    border: 1.5px solid rgba(0,0,0,0.1);
+    cursor: pointer; transition: transform 0.12s, box-shadow 0.12s;
+  }
+  .tdot:hover { transform: scale(1.25); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+
+  /* ⋯ more button */
+  .btn-more {
     margin-left: 4px;
+    padding: 3px 8px; border: 1.5px solid #e8ecf2;
+    border-radius: 6px; background: #fff;
+    font-size: 0.85rem; color: #94a3b8; cursor: pointer;
+    transition: background 0.12s, color 0.12s;
   }
+  .btn-more:hover { background: #f0f4f8; color: #374151; border-color: #c5d3e0; }
 
-  /* Ideas */
-  .ideas-list { display: flex; flex-direction: column; gap: 8px; }
-
-  .idea-card {
+  /* ---- Ideas ---- */
+  .ideas-list { display: flex; flex-direction: column; gap: 6px; }
+  .icard {
     background: #fff;
-    border-radius: 10px;
-    padding: 14px 20px;
-    border: 1.5px solid #e8ecf2;
-    cursor: pointer;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 16px;
+    border: 1.5px solid #e8ecf2; border-radius: 10px;
+    padding: 13px 18px;
+    display: flex; align-items: center; gap: 14px;
+    transition: border-color 0.12s;
   }
-  .idea-card:hover {
-    border-color: #5B7FA0;
-    box-shadow: 0 2px 8px rgba(91,127,160,0.12);
+  .icard:hover { border-color: #c5d3e0; }
+  .f-idea-text {
+    flex: 1; font-size: 0.92rem; font-weight: 500; color: #111827;
+    cursor: text; padding: 2px 4px; border-radius: 5px; margin: -2px -4px;
   }
-  .idea-text {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #111827;
-    flex: 1;
-  }
-  .idea-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-  .idea-submitter {
-    font-size: 0.78rem;
-    color: #6b7280;
-    font-weight: 500;
-  }
+  .f-idea-text:hover { background: #f0f4f8; }
+  .f-idea-text:focus { background: #f0f4f8; outline: 2px solid #5B7FA0; outline-offset: 1px; }
+  .icard-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+  .i-submitter { font-size: 0.77rem; color: #6b7280; font-weight: 500; white-space: nowrap; }
 
-  /* Empty state */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #94a3b8;
+  /* ---- Detail drawer (for secondary fields + new records) ---- */
+  .backdrop {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.2); z-index: 100; backdrop-filter: blur(1px);
   }
-  .empty-state .emoji { font-size: 2.5rem; margin-bottom: 12px; }
-  .empty-state p { font-size: 0.95rem; margin-bottom: 16px; }
-
-  /* ---- DRAWER ---- */
-  .drawer-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.25);
-    z-index: 100;
-    backdrop-filter: blur(1px);
-  }
-  .drawer-backdrop.open { display: block; }
-
+  .backdrop.open { display: block; }
   .drawer {
-    position: fixed;
-    top: 0;
-    right: -520px;
-    width: 500px;
-    max-width: 95vw;
-    height: 100vh;
-    background: #fff;
-    z-index: 101;
-    overflow-y: auto;
-    transition: right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    flex-direction: column;
-    box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+    position: fixed; top: 0; right: -500px;
+    width: 460px; max-width: 95vw; height: 100vh;
+    background: #fff; z-index: 101; overflow-y: auto;
+    transition: right 0.22s cubic-bezier(0.4,0,0.2,1);
+    display: flex; flex-direction: column;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.1);
   }
   .drawer.open { right: 0; }
-
-  .drawer-header {
-    padding: 20px 24px;
-    border-bottom: 1.5px solid #e8ecf2;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #f8fafc;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+  .drawer-hdr {
+    padding: 18px 22px; border-bottom: 1.5px solid #e8ecf2;
+    display: flex; align-items: center; justify-content: space-between;
+    background: #f8fafc; position: sticky; top: 0; z-index: 5;
   }
-  .drawer-title { font-size: 1.05rem; font-weight: 700; color: #1a1a2e; }
-  .drawer-close {
-    width: 32px; height: 32px;
-    border: none;
-    background: #e8ecf2;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.1rem;
-    color: #6b7280;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s;
+  .drawer-hdr span { font-size: 1rem; font-weight: 700; color: #1a1a2e; }
+  .btn-x {
+    width: 30px; height: 30px; border: none;
+    background: #e8ecf2; border-radius: 50%; cursor: pointer;
+    font-size: 1rem; color: #6b7280; display: flex; align-items: center; justify-content: center;
   }
-  .drawer-close:hover { background: #d1d5db; color: #374151; }
-
-  .drawer-body {
-    padding: 24px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  .btn-x:hover { background: #d1d5db; }
+  .drawer-body { padding: 20px 22px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+  .fld { display: flex; flex-direction: column; gap: 4px; }
+  .fld label { font-size: 0.72rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+  .fld input, .fld select, .fld textarea {
+    padding: 8px 11px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+    font-size: 0.88rem; color: #374151; background: #fff; outline: none; font-family: inherit;
   }
-
-  .field-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+  .fld input:focus, .fld select:focus, .fld textarea:focus { border-color: #5B7FA0; }
+  .fld textarea { resize: vertical; min-height: 68px; }
+  .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+  .chkrow { display: flex; align-items: center; gap: 7px; font-size: 0.88rem; color: #374151; cursor: pointer; padding: 4px 0; }
+  .chkrow input { width: 15px; height: 15px; accent-color: #BD3333; cursor: pointer; }
+  .sec-lbl {
+    font-size: 0.7rem; font-weight: 700; color: #aab4c0;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding-bottom: 6px; border-bottom: 1px solid #e8ecf2;
   }
-  .field-group label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .field-group input, .field-group select, .field-group textarea {
-    padding: 9px 12px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    color: #374151;
-    background: #fff;
-    outline: none;
-    transition: border-color 0.15s;
-    font-family: inherit;
-  }
-  .field-group input:focus, .field-group select:focus, .field-group textarea:focus {
-    border-color: #5B7FA0;
-    box-shadow: 0 0 0 3px rgba(91,127,160,0.1);
-  }
-  .field-group textarea { resize: vertical; min-height: 72px; }
-
-  .field-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .section-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-top: 4px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e8ecf2;
-  }
-
-  .team-fields {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .checkrow {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 0;
-    font-size: 0.9rem;
-    color: #374151;
-    cursor: pointer;
-  }
-  .checkrow input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: #BD3333; }
-
-  .drawer-footer {
-    padding: 16px 24px;
-    border-top: 1.5px solid #e8ecf2;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #f8fafc;
-    position: sticky;
-    bottom: 0;
+  .team-flds { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .drawer-ftr {
+    padding: 14px 22px; border-top: 1.5px solid #e8ecf2;
+    display: flex; gap: 8px; align-items: center;
+    background: #f8fafc; position: sticky; bottom: 0;
   }
   .btn-save {
-    flex: 1;
-    padding: 10px;
-    background: #BD3333;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s;
+    flex: 1; padding: 9px; background: #BD3333; color: #fff;
+    border: none; border-radius: 8px; font-size: 0.88rem; font-weight: 700; cursor: pointer;
   }
   .btn-save:hover { background: #a02a2a; }
   .btn-cancel {
-    padding: 10px 18px;
-    background: #f1f5f9;
-    color: #374151;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
+    padding: 9px 16px; background: #f1f5f9; color: #374151;
+    border: none; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
   }
   .btn-cancel:hover { background: #e2e8f0; }
-  .btn-delete {
-    padding: 10px 14px;
-    background: none;
-    color: #ef4444;
-    border: 1.5px solid #fecaca;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
+  .btn-del {
+    padding: 9px 12px; background: none; color: #ef4444;
+    border: 1.5px solid #fecaca; border-radius: 8px;
+    font-size: 0.83rem; font-weight: 600; cursor: pointer;
   }
-  .btn-delete:hover { background: #fee2e2; }
+  .btn-del:hover { background: #fee2e2; }
+
+  /* Empty */
+  .empty { text-align: center; padding: 56px 20px; color: #94a3b8; }
+  .empty .ei { font-size: 2.2rem; margin-bottom: 10px; }
 
   /* Toast */
   .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: #1a1a2e;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 0.88rem;
-    font-weight: 500;
-    z-index: 200;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: fixed; bottom: 22px; left: 50%;
+    transform: translateX(-50%) translateY(70px);
+    background: #1a1a2e; color: #fff;
+    padding: 9px 18px; border-radius: 8px;
+    font-size: 0.85rem; font-weight: 500; z-index: 200;
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
     pointer-events: none;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
-  /* Count badge */
-  .count-pill {
-    background: #e8ecf2;
-    color: #6b7280;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 20px;
-    margin-left: 6px;
+  /* Saving indicator */
+  .saving-ring {
+    display: inline-block; width: 12px; height: 12px;
+    border: 2px solid #e2e8f0; border-top-color: #5B7FA0;
+    border-radius: 50%; animation: spin 0.6s linear infinite;
+    vertical-align: middle; margin-left: 6px;
   }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -442,276 +298,200 @@
 <div class="header">
   <div>
     <h1>📣 Marketing</h1>
-    <div class="subtitle">Blue Alpha · Campaigns & Ideas</div>
+    <div class="sub">Blue Alpha · Campaigns &amp; Ideas</div>
   </div>
 </div>
 
 <div class="page">
+
   <div class="section-tabs">
-    <button class="section-tab active" id="tab-btn-campaigns" onclick="showSection('campaigns')">
-      📧 Campaigns <span class="count-pill" id="campaigns-count">—</span>
+    <button class="stab active" id="stab-campaigns" onclick="showSection('campaigns')">
+      📧 Campaigns <span class="cpill" id="cnt-campaigns">—</span>
     </button>
-    <button class="section-tab" id="tab-btn-ideas" onclick="showSection('ideas')">
-      💡 Ideas <span class="count-pill" id="ideas-count">—</span>
+    <button class="stab" id="stab-ideas" onclick="showSection('ideas')">
+      💡 Ideas <span class="cpill" id="cnt-ideas">—</span>
     </button>
   </div>
 
   <!-- CAMPAIGNS -->
-  <div id="section-campaigns">
+  <div id="sec-campaigns">
     <div class="toolbar">
-      <select id="filter-status" onchange="renderCampaigns()">
+      <select id="fil-status" onchange="renderCampaigns()">
         <option value="">All Statuses</option>
         <option>Idea</option><option>Planning</option>
         <option>In Progress</option><option>Ready</option><option>Sent</option>
       </select>
-      <select id="filter-type" onchange="renderCampaigns()">
+      <select id="fil-type" onchange="renderCampaigns()">
         <option value="">All Types</option>
         <option>New Product</option><option>General</option>
         <option>YouTube</option><option>Limited Run</option>
       </select>
-      <input type="text" id="search-campaigns" placeholder="🔍 Search campaigns..." oninput="renderCampaigns()">
-      <button class="btn-add" onclick="openCampaignDrawer(null)">+ Add Campaign</button>
+      <input type="text" id="fil-search" placeholder="🔍 Search..." oninput="renderCampaigns()">
+      <button class="btn-add" onclick="openCDrawer(null)">+ Add Campaign</button>
     </div>
-    <div class="campaigns-list" id="campaigns-list">
-      <div class="empty-state"><div class="emoji">⏳</div><p>Loading campaigns...</p></div>
-    </div>
+    <div class="campaigns-list" id="campaigns-list"></div>
   </div>
 
   <!-- IDEAS -->
-  <div id="section-ideas" style="display:none">
+  <div id="sec-ideas" style="display:none">
     <div class="toolbar">
-      <select id="filter-idea-status" onchange="renderIdeas()">
+      <select id="fil-istatus" onchange="renderIdeas()">
         <option value="">All Statuses</option>
         <option>New</option><option>Considering</option>
         <option>Approved</option><option>Scheduled</option><option>Declined</option>
       </select>
-      <select id="filter-idea-cat" onchange="renderIdeas()">
+      <select id="fil-icat" onchange="renderIdeas()">
         <option value="">All Categories</option>
         <option>New BA Product</option><option>Limited Run</option>
         <option>Custom Shop</option><option>YouTube</option>
         <option>New Other Product</option><option>General</option>
       </select>
-      <select id="filter-idea-by" onchange="renderIdeas()">
+      <select id="fil-iby" onchange="renderIdeas()">
         <option value="">All Submitters</option>
         <option>Stephen</option><option>Kurt</option><option>Jesse</option>
         <option>Kelly</option><option>Patty</option><option>Chris</option>
       </select>
-      <input type="text" id="search-ideas" placeholder="🔍 Search ideas..." oninput="renderIdeas()">
-      <button class="btn-add" onclick="openIdeaDrawer(null)">+ Add Idea</button>
+      <input type="text" id="fil-isearch" placeholder="🔍 Search..." oninput="renderIdeas()">
+      <button class="btn-add" onclick="openIDrawer(null)">+ Add Idea</button>
     </div>
-    <div class="ideas-list" id="ideas-list">
-      <div class="empty-state"><div class="emoji">⏳</div><p>Loading ideas...</p></div>
-    </div>
+    <div class="ideas-list" id="ideas-list"></div>
   </div>
+
 </div>
 
-<!-- DRAWER BACKDROP -->
-<div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
-
-<!-- CAMPAIGN DRAWER -->
-<div class="drawer" id="campaign-drawer">
-  <div class="drawer-header">
-    <span class="drawer-title" id="campaign-drawer-title">Add Campaign</span>
-    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+<!-- CAMPAIGN DRAWER (add new / secondary fields) -->
+<div class="backdrop" id="bdrop" onclick="closeDrawer()"></div>
+<div class="drawer" id="cdrawer">
+  <div class="drawer-hdr">
+    <span id="cdrawer-title">Add Campaign</span>
+    <button class="btn-x" onclick="closeDrawer()">✕</button>
   </div>
   <div class="drawer-body">
-    <div class="field-group" style="grid-column:1/-1">
-      <label>Subject / Topic *</label>
-      <input type="text" id="cm-subject" placeholder="What's this campaign about?">
-    </div>
-    <div class="field-row">
-      <div class="field-group">
-        <label>Type</label>
-        <select id="cm-type">
-          <option value="">— Select —</option>
+    <div class="fld"><label>Subject / Topic *</label><input type="text" id="cd-subject"></div>
+    <div class="frow">
+      <div class="fld"><label>Type</label>
+        <select id="cd-type"><option value="">—</option>
           <option>New Product</option><option>General</option>
           <option>YouTube</option><option>Limited Run</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label>Status</label>
-        <select id="cm-status">
-          <option value="">— Select —</option>
+        </select></div>
+      <div class="fld"><label>Status</label>
+        <select id="cd-status"><option value="">—</option>
           <option>Idea</option><option>Planning</option>
           <option>In Progress</option><option>Ready</option><option>Sent</option>
-        </select>
+        </select></div>
+    </div>
+    <div class="frow">
+      <div class="fld"><label>Send Date</label><input type="date" id="cd-date"></div>
+      <div class="fld"><label>File #</label><input type="number" id="cd-file"></div>
+    </div>
+    <div class="frow">
+      <div class="fld"><label>Revenue ($)</label><input type="number" id="cd-revenue" step="0.01"></div>
+      <div class="fld" style="justify-content:flex-end;padding-top:18px">
+        <label class="chkrow"><input type="checkbox" id="cd-social"> Social Posts</label>
+        <label class="chkrow"><input type="checkbox" id="cd-waitlist"> Waitlist / Dealer / Agency</label>
       </div>
     </div>
-    <div class="field-row">
-      <div class="field-group">
-        <label>Send Date</label>
-        <input type="date" id="cm-date">
-      </div>
-      <div class="field-group">
-        <label>File #</label>
-        <input type="number" id="cm-file" placeholder="—">
-      </div>
+    <div class="sec-lbl">Team Task Status</div>
+    <div class="team-flds">
+      <div class="fld"><label>Stephen – Content</label>
+        <select id="cd-stephen"><option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option></select></div>
+      <div class="fld"><label>Kurt – Photos</label>
+        <select id="cd-kp"><option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option></select></div>
+      <div class="fld"><label>Kurt – YouTube</label>
+        <select id="cd-ky"><option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option></select></div>
+      <div class="fld"><label>Kelly – Listing</label>
+        <select id="cd-kelly"><option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option></select></div>
+      <div class="fld"><label>Patty – Email</label>
+        <select id="cd-patty"><option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option></select></div>
+      <div class="fld"><label>Chris – SKU/BOM/BOL</label>
+        <select id="cd-chris"><option value="">—</option>
+          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option></select></div>
     </div>
-    <div class="field-row">
-      <div class="field-group">
-        <label>Revenue ($)</label>
-        <input type="number" id="cm-revenue" placeholder="—" step="0.01">
-      </div>
-      <div class="field-group" style="justify-content:flex-end;padding-top:20px">
-        <label class="checkrow">
-          <input type="checkbox" id="cm-social"> Social Posts
-        </label>
-        <label class="checkrow">
-          <input type="checkbox" id="cm-waitlist"> Waitlist / Dealer / Agency
-        </label>
-      </div>
-    </div>
-
-    <div class="section-label">Team Task Status</div>
-    <div class="team-fields">
-      <div class="field-group">
-        <label>Stephen – Content</label>
-        <select id="cm-stephen">
-          <option value="">—</option>
-          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label>Kurt – Photos</label>
-        <select id="cm-kurt-photos">
-          <option value="">—</option>
-          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label>Kurt – YouTube</label>
-        <select id="cm-kurt-yt">
-          <option value="">—</option>
-          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label>Kelly – Listing</label>
-        <select id="cm-kelly">
-          <option value="">—</option>
-          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label>Patty – Email</label>
-        <select id="cm-patty">
-          <option value="">—</option>
-          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label>Chris – SKU/BOM/BOL</label>
-        <select id="cm-chris">
-          <option value="">—</option>
-          <option>Not Started</option><option>In Progress</option><option>Done</option><option>N/A</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="field-group">
-      <label>Notes</label>
-      <textarea id="cm-notes" placeholder="Any additional notes..."></textarea>
-    </div>
+    <div class="fld"><label>Notes</label><textarea id="cd-notes" placeholder="Any additional notes..."></textarea></div>
   </div>
-  <div class="drawer-footer">
-    <button class="btn-delete" id="cm-delete-btn" onclick="deleteCampaign()" style="display:none">Delete</button>
+  <div class="drawer-ftr">
+    <button class="btn-del" id="cd-delbtn" onclick="deleteCampaign()" style="display:none">Delete</button>
     <button class="btn-cancel" onclick="closeDrawer()">Cancel</button>
-    <button class="btn-save" onclick="saveCampaign()">Save Campaign</button>
+    <button class="btn-save" onclick="saveCampaign()">Save</button>
   </div>
 </div>
 
 <!-- IDEA DRAWER -->
-<div class="drawer" id="idea-drawer">
-  <div class="drawer-header">
-    <span class="drawer-title" id="idea-drawer-title">Add Idea</span>
-    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+<div class="drawer" id="idrawer">
+  <div class="drawer-hdr">
+    <span id="idrawer-title">Add Idea</span>
+    <button class="btn-x" onclick="closeDrawer()">✕</button>
   </div>
   <div class="drawer-body">
-    <div class="field-group">
-      <label>Idea *</label>
-      <textarea id="id-idea" placeholder="Describe the idea..." style="min-height:90px"></textarea>
-    </div>
-    <div class="field-row">
-      <div class="field-group">
-        <label>Category</label>
-        <select id="id-cat">
-          <option value="">— Select —</option>
+    <div class="fld"><label>Idea *</label><textarea id="id-idea" style="min-height:88px"></textarea></div>
+    <div class="frow">
+      <div class="fld"><label>Category</label>
+        <select id="id-cat"><option value="">—</option>
           <option>New BA Product</option><option>Limited Run</option>
           <option>Custom Shop</option><option>YouTube</option>
-          <option>New Other Product</option><option>General</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label>Status</label>
-        <select id="id-status">
-          <option value="">— Select —</option>
+          <option>New Other Product</option><option>General</option></select></div>
+      <div class="fld"><label>Status</label>
+        <select id="id-status"><option value="">—</option>
           <option>New</option><option>Considering</option>
-          <option>Approved</option><option>Scheduled</option><option>Declined</option>
-        </select>
-      </div>
+          <option>Approved</option><option>Scheduled</option><option>Declined</option></select></div>
     </div>
-    <div class="field-row">
-      <div class="field-group">
-        <label>Submitted By</label>
-        <select id="id-by">
-          <option value="">— Select —</option>
+    <div class="frow">
+      <div class="fld"><label>Submitted By</label>
+        <select id="id-by"><option value="">—</option>
           <option>Stephen</option><option>Kurt</option><option>Jesse</option>
-          <option>Kelly</option><option>Patty</option><option>Chris</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label>Linked Campaign</label>
-        <input type="text" id="id-campaign" placeholder="—">
-      </div>
+          <option>Kelly</option><option>Patty</option><option>Chris</option></select></div>
+      <div class="fld"><label>Linked Campaign</label><input type="text" id="id-campaign"></div>
     </div>
-    <div class="field-group">
-      <label>Notes</label>
-      <textarea id="id-notes" placeholder="Any additional context..."></textarea>
-    </div>
+    <div class="fld"><label>Notes</label><textarea id="id-notes"></textarea></div>
   </div>
-  <div class="drawer-footer">
-    <button class="btn-delete" id="id-delete-btn" onclick="deleteIdea()" style="display:none">Delete</button>
+  <div class="drawer-ftr">
+    <button class="btn-del" id="id-delbtn" onclick="deleteIdea()" style="display:none">Delete</button>
     <button class="btn-cancel" onclick="closeDrawer()">Cancel</button>
-    <button class="btn-save" onclick="saveIdea()">Save Idea</button>
+    <button class="btn-save" onclick="saveIdea()">Save</button>
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
 const AT_TOKEN = '__PATTY_TOKEN__';
 const BASE_ID  = 'appTCZwoETAInVuiX';
-const MKT_CAMPAIGNS_TABLE = 'tblxj6Nouo4DfzVwA';
-const MKT_IDEAS_TABLE     = 'tbldunjKUpRLtZAqW';
+const C_TABLE  = 'tblxj6Nouo4DfzVwA';
+const I_TABLE  = 'tbldunjKUpRLtZAqW';
 
 let campaigns = [], ideas = [];
-let editingCampaignId = null, editingIdeaId = null;
-let activeDrawer = null;
+let editCId = null, editIId = null, activeDrawer = null;
 
-// ---- Airtable helpers ----
-async function atFetchAll(table, params) {
-  let records = [], offset = null;
+// ---- Airtable ----
+async function atFetch(table, params) {
+  let recs = [], off = null;
   do {
-    const p = offset ? `${params}&offset=${offset}` : params;
+    const p = off ? `${params}&offset=${off}` : params;
     const r = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${table}?${p}`,
       { headers: { Authorization: `Bearer ${AT_TOKEN}` } });
     const d = await r.json();
-    records = records.concat(d.records || []);
-    offset = d.offset;
-  } while (offset);
-  return records;
+    recs = recs.concat(d.records || []);
+    off = d.offset;
+  } while (off);
+  return recs;
 }
-async function atCreate(table, fields) {
-  const r = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${table}`,
-    { method: 'POST', headers: { Authorization: `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' },
+async function atPatch(table, id, fields) {
+  const r = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${table}/${id}`,
+    { method: 'PATCH',
+      headers: { Authorization: `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ fields }) });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
-async function atUpdate(table, id, fields) {
-  const r = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${table}/${id}`,
-    { method: 'PATCH', headers: { Authorization: `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' },
+async function atCreate(table, fields) {
+  const r = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${table}`,
+    { method: 'POST',
+      headers: { Authorization: `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ fields }) });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
@@ -721,97 +501,122 @@ async function atDelete(table, id) {
     { method: 'DELETE', headers: { Authorization: `Bearer ${AT_TOKEN}` } });
 }
 
-// ---- Color maps ----
-const STATUS_COLORS  = { Idea:'#94a3b8', Planning:'#f59e0b', 'In Progress':'#3b82f6', Ready:'#8b5cf6', Sent:'#22c55e' };
-const TYPE_COLORS    = { 'New Product':'#3b82f6', General:'#6b7280', YouTube:'#ef4444', 'Limited Run':'#10b981' };
-const IDEA_STATUS    = { New:'#6b7280', Considering:'#f59e0b', Approved:'#3b82f6', Scheduled:'#8b5cf6', Declined:'#ef4444' };
-const CAT_COLORS     = { 'New BA Product':'#3b82f6', 'Limited Run':'#10b981', 'Custom Shop':'#f59e0b',
-                         YouTube:'#ef4444', 'New Other Product':'#6366f1', General:'#6b7280' };
-const DOT_COLORS     = { Done:'#22c55e', 'In Progress':'#f59e0b', 'Not Started':'#d1d5db', 'N/A':'#c4b5fd' };
+// ---- Colors ----
+const SC = { Idea:'#94a3b8', Planning:'#f59e0b', 'In Progress':'#3b82f6', Ready:'#8b5cf6', Sent:'#22c55e' };
+const TC = { 'New Product':'#3b82f6', General:'#6b7280', YouTube:'#ef4444', 'Limited Run':'#10b981' };
+const IC = { New:'#6b7280', Considering:'#f59e0b', Approved:'#3b82f6', Scheduled:'#8b5cf6', Declined:'#ef4444' };
+const CC = { 'New BA Product':'#3b82f6', 'Limited Run':'#10b981', 'Custom Shop':'#f59e0b',
+             YouTube:'#ef4444', 'New Other Product':'#6366f1', General:'#6b7280' };
+const DC = { Done:'#22c55e', 'In Progress':'#f59e0b', 'Not Started':'#d1d5db', 'N/A':'#c4b5fd' };
+const DOT_CYCLE = ['Not Started','In Progress','Done','N/A',''];
 
-function badge(val, map) {
-  if (!val) return '<span style="color:#d1d5db;font-size:0.78rem">—</span>';
-  const bg = map[val] || '#9ca3af';
+const TEAM = [
+  ['S',   'Stephen - Content'],
+  ['K📷', 'Kurt - Photos'],
+  ['K▶',  'Kurt - YouTube'],
+  ['Ke',  'Kelly - Listing'],
+  ['P',   'Patty - Email'],
+  ['C',   'Chris - SKU/BOM/BOL'],
+];
+
+function fmtDate(ds) {
+  if (!ds) return { html: '<span class="f-date-display nodate">No date</span>', raw: '' };
+  const d = new Date(ds + 'T12:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((d - today) / 86400000);
+  const label = d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  let cls = 'f-date-display';
+  if (diff >= 0 && diff <= 3) cls += ' urgent';
+  else if (diff > 3 && diff <= 7) cls += ' soon';
+  return { html: `<span class="${cls}">${label}</span>`, raw: ds };
+}
+
+function badgeHtml(val, map, opts) {
+  const bg = map[val];
+  if (!val || !bg) return `<span class="badge empty">${opts[0] || '—'}</span>`;
   return `<span class="badge" style="background:${bg}">${val}</span>`;
 }
 
-function dot(val) {
-  const bg = DOT_COLORS[val] || '#e5e7eb';
-  return `<div class="team-dot" style="background:${bg}" title="${val||'—'}"></div>`;
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return null;
-  const d = new Date(dateStr + 'T12:00:00');
-  const today = new Date(); today.setHours(0,0,0,0);
-  const diff = Math.round((d - today) / 86400000);
-  const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  let cls = 'card-date';
-  if (diff >= 0 && diff <= 3) cls += ' upcoming';
-  else if (diff > 3 && diff <= 7) cls += ' soon';
-  return { label, cls };
-}
-
-const TEAM = [
-  ['S', 'Stephen - Content'],
-  ['K📷', 'Kurt - Photos'],
-  ['K▶', 'Kurt - YouTube'],
-  ['Ke', 'Kelly - Listing'],
-  ['P', 'Patty - Email'],
-  ['C', 'Chris - SKU/BOM/BOL'],
-];
-
-// ---- Section toggle ----
+// ---- Section ----
 function showSection(name) {
   ['campaigns','ideas'].forEach(s => {
-    document.getElementById(`section-${s}`).style.display = s === name ? '' : 'none';
-    document.getElementById(`tab-btn-${s}`).classList.toggle('active', s === name);
+    document.getElementById(`sec-${s}`).style.display = s === name ? '' : 'none';
+    document.getElementById(`stab-${s}`).classList.toggle('active', s === name);
   });
 }
 
 // ---- Render campaigns ----
 function renderCampaigns() {
-  const sf = document.getElementById('filter-status').value;
-  const tf = document.getElementById('filter-type').value;
-  const q  = document.getElementById('search-campaigns').value.toLowerCase();
-
+  const sf = document.getElementById('fil-status').value;
+  const tf = document.getElementById('fil-type').value;
+  const q  = document.getElementById('fil-search').value.toLowerCase();
   const data = campaigns.filter(r => {
     const f = r.fields;
-    if (sf && f['Status'] !== sf) return false;
-    if (tf && f['Type']   !== tf) return false;
-    if (q  && !(f['Subject / Topic']||'').toLowerCase().includes(q)) return false;
+    if (sf && f.Status !== sf) return false;
+    if (tf && f.Type   !== tf) return false;
+    if (q && !(f['Subject / Topic']||'').toLowerCase().includes(q)) return false;
     return true;
   });
-
-  document.getElementById('campaigns-count').textContent = data.length;
+  document.getElementById('cnt-campaigns').textContent = data.length;
   const el = document.getElementById('campaigns-list');
-
   if (!data.length) {
-    el.innerHTML = `<div class="empty-state"><div class="emoji">📭</div><p>No campaigns match your filters.</p><button class="btn-add" onclick="openCampaignDrawer(null)">+ Add Campaign</button></div>`;
+    el.innerHTML = `<div class="empty"><div class="ei">📭</div><p>No campaigns match.</p></div>`;
     return;
   }
 
   el.innerHTML = data.map(rec => {
     const f = rec.fields;
-    const dateInfo = formatDate(f['Send Date']);
-    const teamHtml = TEAM.map(([init, field]) => `
-      <div class="team-person">
-        <span class="team-initial">${init}</span>
-        ${dot(f[field]||'')}
-      </div>`).join('');
+    const id = rec.id;
+    const dateInfo = fmtDate(f['Send Date']);
 
-    return `<div class="campaign-card" onclick="openCampaignDrawer('${rec.id}')">
-      <div class="card-top">
-        <div class="card-subject">${f['Subject / Topic'] || '—'}</div>
-        ${dateInfo ? `<div class="${dateInfo.cls}">${dateInfo.label}</div>` : '<div class="card-date">No date</div>'}
+    const statusBadge = badgeHtml(f.Status, SC, ['Status']);
+    const typeBadge   = badgeHtml(f.Type,   TC, ['Type']);
+
+    const teamDots = TEAM.map(([init, field]) => {
+      const val = f[field] || '';
+      const bg  = DC[val] || '#e5e7eb';
+      return `<div class="team-person">
+        <span class="team-initial">${init}</span>
+        <div class="tdot" style="background:${bg}" title="${init}: ${val||'—'}"
+          data-action="dot" data-id="${id}" data-field="${field}" data-val="${val}"></div>
+      </div>`;
+    }).join('');
+
+    const fileNum = f['File #']
+      ? `<span class="f-filenum" data-action="edit-file" data-id="${id}" data-val="${f['File #']}">#${f['File #']}</span>`
+      : `<span class="f-filenum empty" data-action="edit-file" data-id="${id}" data-val="">File#</span>`;
+
+    return `<div class="ccard">
+      <div class="ccard-top">
+        <div class="f-subject" contenteditable="true" spellcheck="false"
+          data-action="edit-subject" data-id="${id}"
+          data-orig="${escHtml(f['Subject / Topic']||'')}"
+        >${escHtml(f['Subject / Topic']||'')}</div>
+        <div class="f-date-wrap" data-action="edit-date" data-id="${id}" data-val="${f['Send Date']||''}"
+          style="cursor:pointer">${dateInfo.html}</div>
       </div>
-      <div class="card-bottom">
-        <div class="card-meta">
-          ${badge(f['Status'], STATUS_COLORS)}
-          ${badge(f['Type'], TYPE_COLORS)}
-          ${f['File #'] ? `<span class="file-num">File #${f['File #']}</span>` : ''}
+      <div class="ccard-bottom">
+        <div class="ccard-meta">
+          <div class="f-badge-wrap" title="Click to change status">
+            ${statusBadge}
+            <select class="f-badge-select" data-action="edit-status" data-id="${id}">
+              ${['','Idea','Planning','In Progress','Ready','Sent'].map(o=>
+                `<option value="${o}" ${f.Status===o?'selected':''}>${o||'— Status —'}</option>`).join('')}
+            </select>
+          </div>
+          <div class="f-badge-wrap" title="Click to change type">
+            ${typeBadge}
+            <select class="f-badge-select" data-action="edit-type" data-id="${id}">
+              ${['','New Product','General','YouTube','Limited Run'].map(o=>
+                `<option value="${o}" ${f.Type===o?'selected':''}>${o||'— Type —'}</option>`).join('')}
+            </select>
+          </div>
+          ${fileNum}
         </div>
-        <div class="team-row">${teamHtml}</div>
+        <div style="display:flex;align-items:flex-end;gap:10px">
+          <div class="team-row">${teamDots}</div>
+          <button class="btn-more" data-action="open-more" data-id="${id}" title="Notes, revenue, social…">⋯</button>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -819,176 +624,310 @@ function renderCampaigns() {
 
 // ---- Render ideas ----
 function renderIdeas() {
-  const sf = document.getElementById('filter-idea-status').value;
-  const cf = document.getElementById('filter-idea-cat').value;
-  const bf = document.getElementById('filter-idea-by').value;
-  const q  = document.getElementById('search-ideas').value.toLowerCase();
-
+  const sf = document.getElementById('fil-istatus').value;
+  const cf = document.getElementById('fil-icat').value;
+  const bf = document.getElementById('fil-iby').value;
+  const q  = document.getElementById('fil-isearch').value.toLowerCase();
   const data = ideas.filter(r => {
     const f = r.fields;
-    if (sf && f['Status']       !== sf) return false;
-    if (cf && f['Category']     !== cf) return false;
+    if (sf && f.Status       !== sf) return false;
+    if (cf && f.Category     !== cf) return false;
     if (bf && f['Submitted By'] !== bf) return false;
-    if (q  && !(f['Idea']||'').toLowerCase().includes(q)) return false;
+    if (q  && !(f.Idea||'').toLowerCase().includes(q)) return false;
     return true;
   });
-
-  document.getElementById('ideas-count').textContent = data.length;
+  document.getElementById('cnt-ideas').textContent = data.length;
   const el = document.getElementById('ideas-list');
-
   if (!data.length) {
-    el.innerHTML = `<div class="empty-state"><div class="emoji">💭</div><p>No ideas found.</p><button class="btn-add" onclick="openIdeaDrawer(null)">+ Add Idea</button></div>`;
+    el.innerHTML = `<div class="empty"><div class="ei">💭</div><p>No ideas found.</p></div>`;
     return;
   }
-
   el.innerHTML = data.map(rec => {
     const f = rec.fields;
-    return `<div class="idea-card" onclick="openIdeaDrawer('${rec.id}')">
-      <div class="idea-text">${f['Idea'] || '—'}</div>
-      <div class="idea-meta">
-        ${f['Submitted By'] ? `<span class="idea-submitter">${f['Submitted By']}</span>` : ''}
-        ${badge(f['Category'], CAT_COLORS)}
-        ${badge(f['Status'], IDEA_STATUS)}
+    const id = rec.id;
+    return `<div class="icard">
+      <div class="f-idea-text" contenteditable="true" spellcheck="false"
+        data-action="edit-idea" data-id="${id}"
+        data-orig="${escHtml(f.Idea||'')}"
+      >${escHtml(f.Idea||'')}</div>
+      <div class="icard-meta">
+        ${f['Submitted By'] ? `<span class="i-submitter">${f['Submitted By']}</span>` : ''}
+        <div class="f-badge-wrap">
+          ${badgeHtml(f.Category, CC, ['Category'])}
+          <select class="f-badge-select" data-action="edit-icat" data-id="${id}">
+            ${['','New BA Product','Limited Run','Custom Shop','YouTube','New Other Product','General'].map(o=>
+              `<option value="${o}" ${f.Category===o?'selected':''}>${o||'— Category —'}</option>`).join('')}
+          </select>
+        </div>
+        <div class="f-badge-wrap">
+          ${badgeHtml(f.Status, IC, ['Status'])}
+          <select class="f-badge-select" data-action="edit-istatus" data-id="${id}">
+            ${['','New','Considering','Approved','Scheduled','Declined'].map(o=>
+              `<option value="${o}" ${f.Status===o?'selected':''}>${o||'— Status —'}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn-more" data-action="open-imore" data-id="${id}">⋯</button>
       </div>
     </div>`;
   }).join('');
 }
 
-// ---- Drawer ----
-function openDrawer(drawerId) {
-  closeDrawer();
-  activeDrawer = drawerId;
-  document.getElementById('drawer-backdrop').classList.add('open');
-  document.getElementById(drawerId).classList.add('open');
-}
-function closeDrawer() {
-  if (activeDrawer) {
-    document.getElementById(activeDrawer).classList.remove('open');
-    activeDrawer = null;
+// ---- Event delegation ----
+document.addEventListener('change', async e => {
+  const sel = e.target;
+  const action = sel.dataset.action;
+  if (!action) return;
+  const id = sel.dataset.id;
+  const val = sel.value;
+
+  if (action === 'edit-status') await quickSave(C_TABLE, id, { Status: val }, campaigns);
+  if (action === 'edit-type')   await quickSave(C_TABLE, id, { Type: val }, campaigns);
+  if (action === 'edit-icat')   await quickSave(I_TABLE, id, { Category: val }, ideas);
+  if (action === 'edit-istatus') await quickSave(I_TABLE, id, { Status: val }, ideas);
+});
+
+document.addEventListener('click', async e => {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const action = el.dataset.action;
+  const id = el.dataset.id;
+
+  if (action === 'dot') {
+    const cur = el.dataset.val;
+    const idx = DOT_CYCLE.indexOf(cur);
+    const next = DOT_CYCLE[(idx + 1) % DOT_CYCLE.length];
+    const field = el.dataset.field;
+    const fields = {}; fields[field] = next || null;
+    // Optimistic update
+    el.style.background = DC[next] || '#e5e7eb';
+    el.dataset.val = next;
+    el.title = el.closest('.team-person').querySelector('.team-initial').textContent + ': ' + (next||'—');
+    await quickSave(C_TABLE, id, fields, campaigns, false);
   }
-  document.getElementById('drawer-backdrop').classList.remove('open');
+
+  if (action === 'edit-date') {
+    const wrap = el.closest ? el : el.parentElement;
+    if (wrap.querySelector('input')) return;
+    const cur = el.dataset ? el.dataset.val : (wrap.dataset.val || '');
+    const inp = document.createElement('input');
+    inp.type = 'date'; inp.className = 'f-date-input'; inp.value = cur;
+    wrap.innerHTML = '';
+    wrap.appendChild(inp);
+    inp.focus();
+    const doSave = async () => {
+      const v = inp.value;
+      await quickSave(C_TABLE, id, { 'Send Date': v || null }, campaigns);
+    };
+    inp.addEventListener('blur', doSave);
+    inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') inp.blur(); if (ev.key === 'Escape') { inp.blur(); } });
+    return;
+  }
+
+  if (action === 'edit-file') {
+    if (el.querySelector('input')) return;
+    const cur = el.dataset.val || '';
+    const orig = el.outerHTML;
+    const inp = document.createElement('input');
+    inp.type = 'number'; inp.className = 'f-filenum-input'; inp.value = cur; inp.placeholder = 'File #';
+    el.replaceWith(inp);
+    inp.focus(); inp.select();
+    const doSave = async () => {
+      const v = inp.value.trim();
+      await quickSave(C_TABLE, id, { 'File #': v ? parseInt(v) : null }, campaigns, true);
+    };
+    inp.addEventListener('blur', doSave);
+    inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') inp.blur(); });
+    return;
+  }
+
+  if (action === 'open-more') { openCDrawer(id, true); return; }
+  if (action === 'open-imore') { openIDrawer(id, true); return; }
+});
+
+// Contenteditable blur → save
+document.addEventListener('focusout', async e => {
+  const el = e.target;
+  const action = el.dataset.action;
+  if (!action) return;
+  const id = el.dataset.id;
+  const val = el.textContent.trim();
+  const orig = el.dataset.orig || '';
+
+  if (action === 'edit-subject' && val !== orig) {
+    el.dataset.orig = val;
+    await quickSave(C_TABLE, id, { 'Subject / Topic': val }, campaigns, true);
+  }
+  if (action === 'edit-idea' && val !== orig) {
+    el.dataset.orig = val;
+    await quickSave(I_TABLE, id, { Idea: val }, ideas, true);
+  }
+});
+
+// Prevent newlines in contenteditable subject
+document.addEventListener('keydown', e => {
+  if ((e.target.dataset.action === 'edit-subject' || e.target.dataset.action === 'edit-idea')
+      && e.key === 'Enter') {
+    e.preventDefault();
+    e.target.blur();
+  }
+});
+
+// ---- Quick save ----
+async function quickSave(table, id, fields, arr, rerender = true) {
+  try {
+    const rec = await atPatch(table, id, fields);
+    // Update local cache
+    const idx = arr.findIndex(r => r.id === id);
+    if (idx !== -1) Object.assign(arr[idx].fields, fields);
+    if (rerender) {
+      if (arr === campaigns) renderCampaigns();
+      else renderIdeas();
+    }
+    showToast('Saved ✓');
+  } catch(err) {
+    showToast('Save failed: ' + err.message);
+  }
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
 
 // ---- Campaign drawer ----
-function openCampaignDrawer(id) {
-  editingCampaignId = id;
-  document.getElementById('campaign-drawer-title').textContent = id ? 'Edit Campaign' : 'Add Campaign';
-  document.getElementById('cm-delete-btn').style.display = id ? 'inline-block' : 'none';
-  const f = id ? (campaigns.find(r => r.id === id) || {}).fields || {} : {};
-  document.getElementById('cm-subject').value       = f['Subject / Topic'] || '';
-  document.getElementById('cm-type').value          = f['Type'] || '';
-  document.getElementById('cm-date').value          = f['Send Date'] || '';
-  document.getElementById('cm-status').value        = f['Status'] || '';
-  document.getElementById('cm-file').value          = f['File #'] || '';
-  document.getElementById('cm-revenue').value       = f['Revenue'] || '';
-  document.getElementById('cm-social').checked      = !!f['Social Posts'];
-  document.getElementById('cm-waitlist').checked    = !!f['Waitlist / Dealer / Agency'];
-  document.getElementById('cm-stephen').value       = f['Stephen - Content'] || '';
-  document.getElementById('cm-kurt-photos').value   = f['Kurt - Photos'] || '';
-  document.getElementById('cm-kurt-yt').value       = f['Kurt - YouTube'] || '';
-  document.getElementById('cm-kelly').value         = f['Kelly - Listing'] || '';
-  document.getElementById('cm-patty').value         = f['Patty - Email'] || '';
-  document.getElementById('cm-chris').value         = f['Chris - SKU/BOM/BOL'] || '';
-  document.getElementById('cm-notes').value         = f['Notes'] || '';
-  openDrawer('campaign-drawer');
+function openCDrawer(id, moreOnly) {
+  editCId = id;
+  document.getElementById('cdrawer-title').textContent = id ? (moreOnly ? 'Campaign Details' : 'Edit Campaign') : 'Add Campaign';
+  document.getElementById('cd-delbtn').style.display = id ? 'inline-block' : 'none';
+  const f = id ? (campaigns.find(r => r.id === id)||{}).fields||{} : {};
+  document.getElementById('cd-subject').value   = f['Subject / Topic']||'';
+  document.getElementById('cd-type').value      = f.Type||'';
+  document.getElementById('cd-status').value    = f.Status||'';
+  document.getElementById('cd-date').value      = f['Send Date']||'';
+  document.getElementById('cd-file').value      = f['File #']||'';
+  document.getElementById('cd-revenue').value   = f.Revenue||'';
+  document.getElementById('cd-social').checked  = !!f['Social Posts'];
+  document.getElementById('cd-waitlist').checked= !!f['Waitlist / Dealer / Agency'];
+  document.getElementById('cd-stephen').value   = f['Stephen - Content']||'';
+  document.getElementById('cd-kp').value        = f['Kurt - Photos']||'';
+  document.getElementById('cd-ky').value        = f['Kurt - YouTube']||'';
+  document.getElementById('cd-kelly').value     = f['Kelly - Listing']||'';
+  document.getElementById('cd-patty').value     = f['Patty - Email']||'';
+  document.getElementById('cd-chris').value     = f['Chris - SKU/BOM/BOL']||'';
+  document.getElementById('cd-notes').value     = f.Notes||'';
+  openDrawer('cdrawer');
 }
 
 async function saveCampaign() {
-  const sub = document.getElementById('cm-subject').value.trim();
-  if (!sub) { showToast('Subject / Topic is required'); return; }
+  const sub = document.getElementById('cd-subject').value.trim();
+  if (!sub) { showToast('Subject is required'); return; }
   const fields = { 'Subject / Topic': sub };
-  const v = (elId, key) => { const val = document.getElementById(elId).value; if (val) fields[key] = val; };
-  v('cm-type', 'Type'); v('cm-date', 'Send Date'); v('cm-status', 'Status');
-  const fn = document.getElementById('cm-file').value; if (fn) fields['File #'] = parseInt(fn);
-  const rv = document.getElementById('cm-revenue').value; if (rv) fields['Revenue'] = parseFloat(rv);
-  fields['Social Posts'] = document.getElementById('cm-social').checked;
-  fields['Waitlist / Dealer / Agency'] = document.getElementById('cm-waitlist').checked;
-  v('cm-stephen', 'Stephen - Content'); v('cm-kurt-photos', 'Kurt - Photos');
-  v('cm-kurt-yt', 'Kurt - YouTube');   v('cm-kelly', 'Kelly - Listing');
-  v('cm-patty', 'Patty - Email');      v('cm-chris', 'Chris - SKU/BOM/BOL');
-  const notes = document.getElementById('cm-notes').value.trim(); if (notes) fields['Notes'] = notes;
+  const v = (eid, key) => { const val = document.getElementById(eid).value; if (val) fields[key] = val; };
+  v('cd-type','Type'); v('cd-date','Send Date'); v('cd-status','Status');
+  const fn = document.getElementById('cd-file').value; if (fn) fields['File #'] = parseInt(fn);
+  const rv = document.getElementById('cd-revenue').value; if (rv) fields.Revenue = parseFloat(rv);
+  fields['Social Posts'] = document.getElementById('cd-social').checked;
+  fields['Waitlist / Dealer / Agency'] = document.getElementById('cd-waitlist').checked;
+  v('cd-stephen','Stephen - Content'); v('cd-kp','Kurt - Photos');
+  v('cd-ky','Kurt - YouTube');         v('cd-kelly','Kelly - Listing');
+  v('cd-patty','Patty - Email');       v('cd-chris','Chris - SKU/BOM/BOL');
+  const notes = document.getElementById('cd-notes').value.trim(); if (notes) fields.Notes = notes;
   try {
-    if (editingCampaignId) await atUpdate(MKT_CAMPAIGNS_TABLE, editingCampaignId, fields);
-    else await atCreate(MKT_CAMPAIGNS_TABLE, fields);
+    if (editCId) await atPatch(C_TABLE, editCId, fields);
+    else         await atCreate(C_TABLE, fields);
     closeDrawer();
-    campaigns = await atFetchAll(MKT_CAMPAIGNS_TABLE, 'sort[0][field]=Send+Date&sort[0][direction]=asc');
+    campaigns = await atFetch(C_TABLE, 'sort[0][field]=Send+Date&sort[0][direction]=asc');
     renderCampaigns();
     showToast('Campaign saved ✓');
-  } catch(e) { showToast('Error: ' + e.message); }
+  } catch(err) { showToast('Error: ' + err.message); }
 }
 
 async function deleteCampaign() {
-  if (!editingCampaignId || !confirm('Delete this campaign?')) return;
+  if (!editCId || !confirm('Delete this campaign?')) return;
   try {
-    await atDelete(MKT_CAMPAIGNS_TABLE, editingCampaignId);
+    await atDelete(C_TABLE, editCId);
     closeDrawer();
-    campaigns = await atFetchAll(MKT_CAMPAIGNS_TABLE, 'sort[0][field]=Send+Date&sort[0][direction]=asc');
+    campaigns = await atFetch(C_TABLE, 'sort[0][field]=Send+Date&sort[0][direction]=asc');
     renderCampaigns();
-    showToast('Campaign deleted');
-  } catch(e) { showToast('Error: ' + e.message); }
+    showToast('Deleted');
+  } catch(err) { showToast('Error: ' + err.message); }
 }
 
 // ---- Idea drawer ----
-function openIdeaDrawer(id) {
-  editingIdeaId = id;
-  document.getElementById('idea-drawer-title').textContent = id ? 'Edit Idea' : 'Add Idea';
-  document.getElementById('id-delete-btn').style.display = id ? 'inline-block' : 'none';
-  const f = id ? (ideas.find(r => r.id === id) || {}).fields || {} : {};
-  document.getElementById('id-idea').value     = f['Idea'] || '';
-  document.getElementById('id-cat').value      = f['Category'] || '';
-  document.getElementById('id-status').value   = f['Status'] || '';
-  document.getElementById('id-by').value       = f['Submitted By'] || '';
-  document.getElementById('id-campaign').value = f['Campaign'] || '';
-  document.getElementById('id-notes').value    = f['Notes'] || '';
-  openDrawer('idea-drawer');
+function openIDrawer(id, moreOnly) {
+  editIId = id;
+  document.getElementById('idrawer-title').textContent = id ? 'Edit Idea' : 'Add Idea';
+  document.getElementById('id-delbtn').style.display = id ? 'inline-block' : 'none';
+  const f = id ? (ideas.find(r => r.id === id)||{}).fields||{} : {};
+  document.getElementById('id-idea').value     = f.Idea||'';
+  document.getElementById('id-cat').value      = f.Category||'';
+  document.getElementById('id-status').value   = f.Status||'';
+  document.getElementById('id-by').value       = f['Submitted By']||'';
+  document.getElementById('id-campaign').value = f.Campaign||'';
+  document.getElementById('id-notes').value    = f.Notes||'';
+  openDrawer('idrawer');
 }
 
 async function saveIdea() {
   const idea = document.getElementById('id-idea').value.trim();
   if (!idea) { showToast('Idea text is required'); return; }
-  const fields = { 'Idea': idea };
-  const v = (elId, key) => { const val = document.getElementById(elId).value; if (val) fields[key] = val; };
-  v('id-cat', 'Category'); v('id-status', 'Status');
-  v('id-by', 'Submitted By'); v('id-campaign', 'Campaign');
-  const notes = document.getElementById('id-notes').value.trim(); if (notes) fields['Notes'] = notes;
+  const fields = { Idea: idea };
+  const v = (eid, key) => { const val = document.getElementById(eid).value; if (val) fields[key] = val; };
+  v('id-cat','Category'); v('id-status','Status');
+  v('id-by','Submitted By'); v('id-campaign','Campaign');
+  const notes = document.getElementById('id-notes').value.trim(); if (notes) fields.Notes = notes;
   try {
-    if (editingIdeaId) await atUpdate(MKT_IDEAS_TABLE, editingIdeaId, fields);
-    else await atCreate(MKT_IDEAS_TABLE, fields);
+    if (editIId) await atPatch(I_TABLE, editIId, fields);
+    else         await atCreate(I_TABLE, fields);
     closeDrawer();
-    ideas = await atFetchAll(MKT_IDEAS_TABLE, '');
+    ideas = await atFetch(I_TABLE, '');
     renderIdeas();
     showToast('Idea saved ✓');
-  } catch(e) { showToast('Error: ' + e.message); }
+  } catch(err) { showToast('Error: ' + err.message); }
 }
 
 async function deleteIdea() {
-  if (!editingIdeaId || !confirm('Delete this idea?')) return;
+  if (!editIId || !confirm('Delete this idea?')) return;
   try {
-    await atDelete(MKT_IDEAS_TABLE, editingIdeaId);
+    await atDelete(I_TABLE, editIId);
     closeDrawer();
-    ideas = await atFetchAll(MKT_IDEAS_TABLE, '');
+    ideas = await atFetch(I_TABLE, '');
     renderIdeas();
-    showToast('Idea deleted');
-  } catch(e) { showToast('Error: ' + e.message); }
+    showToast('Deleted');
+  } catch(err) { showToast('Error: ' + err.message); }
 }
+
+// ---- Drawer utils ----
+function openDrawer(id) {
+  closeDrawer();
+  activeDrawer = id;
+  document.getElementById('bdrop').classList.add('open');
+  document.getElementById(id).classList.add('open');
+}
+function closeDrawer() {
+  if (activeDrawer) document.getElementById(activeDrawer).classList.remove('open');
+  document.getElementById('bdrop').classList.remove('open');
+  activeDrawer = null;
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
 
 // ---- Toast ----
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ---- Escape HTML ----
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ---- Init ----
 (async () => {
+  document.getElementById('campaigns-list').innerHTML =
+    `<div class="empty"><div class="ei">⏳</div><p>Loading...</p></div>`;
   [campaigns, ideas] = await Promise.all([
-    atFetchAll(MKT_CAMPAIGNS_TABLE, 'sort[0][field]=Send+Date&sort[0][direction]=asc'),
-    atFetchAll(MKT_IDEAS_TABLE, '')
+    atFetch(C_TABLE, 'sort[0][field]=Send+Date&sort[0][direction]=asc'),
+    atFetch(I_TABLE, '')
   ]);
-  document.getElementById('campaigns-count').textContent = campaigns.length;
-  document.getElementById('ideas-count').textContent = ideas.length;
   renderCampaigns();
   renderIdeas();
 })();
