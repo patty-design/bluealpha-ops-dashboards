@@ -608,8 +608,8 @@ async function loadData() {
     // Determine if an employee has an amber highlight:
     // they're on P4/P5 AND there's a P1/P2 gap process they're qualified for
     const p12GapBols = new Set([...processGroups.entries()]
-      .filter(([bolId, g]) => (g.priorityCounts['1'] || g.priorityCounts['2']) && (qualifiedOnFloor.get(bolId)||0) === 0)
-      .map(([bolId]) => bolId));
+      .filter(([procName, g]) => (g.priorityCounts['1'] || g.priorityCounts['2']) && (qualifiedOnFloor.get(procName)||0) === 0)
+      .map(([procName]) => procName));
 
     const employeeList = document.getElementById('employee-list');
     if (employeeInProgress.size === 0) {
@@ -622,11 +622,18 @@ async function loadData() {
         const p = empStatus.priority || '?';
         const pClass = priorityClass(p);
         const empPNum = parseInt(p);
-        const isAmber = (empPNum >= 4) && emp && [...p12GapBols].some(bolId => emp.qualifiedBolIds.has(bolId) && !empStatus.bolIds.has(bolId));
-        // Qual tags: BOL IDs that this employee is qualified for that are in the processGroups
-        const qualTags = emp ? [...emp.qualifiedBolIds]
-          .filter(b => processGroups.has(b))
-          .map(b => `<span class="qual-tag">${escHtml(processGroups.get(b).processName)}</span>`)
+        // Amber: on P4/P5 and qualified for a P1/P2 gap group they're not currently on
+        const isAmber = (empPNum >= 4) && emp && [...p12GapBols].some(procName => {
+          const g = processGroups.get(procName);
+          if (!g) return false;
+          const qualified = [...g.bolIds].some(b => emp.qualifiedBolIds.has(b));
+          const alreadyOn = [...g.bolIds].some(b => empStatus.bolIds.has(b));
+          return qualified && !alreadyOn;
+        });
+        // Qual tags: process names where employee is qualified and has to-do tasks
+        const qualTags = emp ? [...processGroups.entries()]
+          .filter(([, g]) => [...g.bolIds].some(b => emp.qualifiedBolIds.has(b)))
+          .map(([, g]) => `<span class="qual-tag">${escHtml(g.processName)}</span>`)
           .slice(0, 4)
           .join('') : '';
         const amberNote = isAmber ? `<span class="amber-tag">⚡ Qualified for higher-priority gap</span>` : '';
