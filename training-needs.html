@@ -439,20 +439,21 @@ async function loadData() {
     ]);
 
     // ── Build process groups from To-Do records ──
-    // Map: bolId → { processName, priorityCounts: {1:N, 2:N, ...} }
+    // Grouped by process NAME (not BOL ID) so duplicates like "BarTackMain" merge.
+    // Map: processName → { bolIds: Set, priorityCounts: {1:N, ...} }
     const processGroups = new Map();
     for (const rec of todoRecords) {
       const bolIds = rec.fields['Bill of Labor'] || [];
       if (!bolIds.length) continue;
-      const bolId = bolIds[0];
       const priority = String(rec.fields['Priority'] || '');
       if (!['1','2','3','4','5'].includes(priority)) continue;
-      const processName = rec.fields['Process (Glide)'] || bolId;
+      const processName = rec.fields['Process (Glide)'] || bolIds[0];
       if (isIgnoredProcess(processName)) continue;
-      if (!processGroups.has(bolId)) {
-        processGroups.set(bolId, { processName, priorityCounts: {} });
+      if (!processGroups.has(processName)) {
+        processGroups.set(processName, { processName, bolIds: new Set(), priorityCounts: {} });
       }
-      const group = processGroups.get(bolId);
+      const group = processGroups.get(processName);
+      bolIds.forEach(id => group.bolIds.add(id));
       group.priorityCounts[priority] = (group.priorityCounts[priority] || 0) + 1;
     }
 
@@ -494,21 +495,25 @@ async function loadData() {
       employeeMap.set(rec.id, { name, qualifiedBolIds: new Set(quals) });
     }
 
-    // ── Compute on-floor counts per BOL ──
-    // qualifiedOnFloor: bolId → count of qualified employees currently In Progress on that BOL
-    const qualifiedOnFloor = new Map();
-    for (const [bolId] of processGroups) {
-      let count = 0;
-      const onFloorEmps = inProgressByBol.get(bolId) || new Set();
-      for (const empId of onFloorEmps) {
-        const emp = employeeMap.get(empId);
-        if (emp && emp.qualifiedBolIds.has(bolId)) count++;
+    // ── Compute on-floor counts per process group ──
+    // An employee counts if they're In Progress on ANY BOL in the group AND are qualified for it
+    const qualifiedOnFloor = new Map(); // processName → count
+    for (const [procName, group] of processGroups) {
+      const onFloorEmpIds = new Set();
+      for (const bolId of group.bolIds) {
+        const emps = inProgressByBol.get(bolId) || new Set();
+        for (const empId of emps) {
+          const emp = employeeMap.get(empId);
+          if (emp && [...group.bolIds].some(b => emp.qualifiedBolIds.has(b))) {
+            onFloorEmpIds.add(empId);
+          }
+        }
       }
-      qualifiedOnFloor.set(bolId, count);
+      qualifiedOnFloor.set(procName, onFloorEmpIds.size);
     }
 
     // ── Sort process groups ──
-    const sortedGroups = [...processGroups.entries()].sort(([aId, aG], [bId, bG]) => {
+    const sortedGroups = [...processGroups.entries()].sort(([, aG], [, bG]) => {
       const aMinP = Math.min(...Object.keys(aG.priorityCounts).map(Number));
       const bMinP = Math.min(...Object.keys(bG.priorityCounts).map(Number));
       if (aMinP !== bMinP) return aMinP - bMinP;
@@ -518,10 +523,10 @@ async function loadData() {
     });
 
     // ── Identify P1 gaps ──
-    const p1GapBols = new Set();
-    for (const [bolId, group] of sortedGroups) {
-      if (group.priorityCounts['1'] && (qualifiedOnFloor.get(bolId) || 0) === 0) {
-        p1GapBols.add(bolId);
+    const p1GapBols = new Set(); // using processName as key here
+    for (const [procName, group] of sortedGroups) {
+      if (group.priorityCounts['1'] && (qualifiedOnFloor.get(procName) || 0) === 0) {
+        p1GapBols.add(procName);
       }
     }
 
@@ -535,11 +540,15 @@ async function loadData() {
       const empPriority = parseInt(empStatus.priority || '9');
       // Only flag if they're on P3+ (lower than P1/P2)
       if (empPriority <= 2) continue;
-      for (const [bolId, group] of sortedGroups) {
+      for (const [procName, group] of sortedGroups) {
         if (!(group.priorityCounts['1'] || group.priorityCounts['2'])) continue;
-        if ((qualifiedOnFloor.get(bolId) || 0) > 0) continue; // gap must be unstaff-qualified
-        if (!emp.qualifiedBolIds.has(bolId)) continue; // must be qualified
-        if (empStatus.bolIds.has(bolId)) continue; // not already on it
+        if ((qualifiedOnFloor.get(procName) || 0) > 0) continue;
+        // Qualified if emp is qualified for ANY bol in this group
+        const isQualified = [...group.bolIds].some(b => emp.qualifiedBolIds.has(b));
+        if (!isQualified) continue;
+        // Already on it if currently in-progress on any bol in this group
+        const alreadyOn = [...group.bolIds].some(b => empStatus.bolIds.has(b));
+        if (alreadyOn) continue;
         const p1count = group.priorityCounts['1'] || 0;
         const p2count = group.priorityCounts['2'] || 0;
         if (p1count > 0) {
@@ -576,8 +585,8 @@ async function loadData() {
     if (sortedGroups.length === 0) {
       processList.innerHTML = '<li class="empty-state">No priority tasks in queue</li>';
     } else {
-      processList.innerHTML = sortedGroups.map(([bolId, group]) => {
-        const onFloor = qualifiedOnFloor.get(bolId) || 0;
+      processList.innerHTML = sortedGroups.map(([procName, group]) => {
+        const onFloor = qualifiedOnFloor.get(procName) || 0;
         const hasP1Gap = group.priorityCounts['1'] && onFloor === 0;
         const rowClass = hasP1Gap ? 'process-row gap-alert' : 'process-row';
         const floorClass = onFloor === 0 ? 'zero' : 'some';
