@@ -152,6 +152,7 @@
       border-radius: 9999px;
       white-space: nowrap;
     }
+    .pill-total { font-size: 0.72rem; font-weight: 600; color: var(--muted); padding: 2px 6px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; white-space: nowrap; }
     .pill-1 { background: #DC2626; color: #fff; }
     .pill-2 { background: #EA580C; color: #fff; }
     .pill-3 { background: #F59E0B; color: #fff; }
@@ -584,10 +585,11 @@ async function loadData() {
           .filter(p => group.priorityCounts[String(p)])
           .map(p => `<span class="pill pill-${p}">${group.priorityCounts[String(p)]}</span>`)
           .join('');
+        const total = Object.values(group.priorityCounts).reduce((s,n) => s+n, 0);
         return `
           <li class="${rowClass}">
             <span class="process-name" title="${escHtml(group.processName)}">${escHtml(group.processName)}</span>
-            <div class="pills">${pills}</div>
+            <div class="pills">${pills}<span class="pill-total">total ${total}</span></div>
             <span class="on-floor-label ${floorClass}">${onFloor} on floor</span>
           </li>`;
       }).join('');
