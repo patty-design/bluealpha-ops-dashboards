@@ -397,6 +397,18 @@ async function fetchAll(tableId, fields, filterFormula) {
   return records;
 }
 
+const IGNORED_PROCESSES = [
+  'finalcountrawmaterials','finalcountbelts','finalcountaccessories',
+  'laser80w','laser80w2','laser155','cleannrollrig',
+  'sew','kitting','3d print','testonly','amxcut','daddy/mama'
+];
+
+function isIgnoredProcess(name) {
+  if (!name) return false;
+  const lower = name.toLowerCase().replace(/\s+/g, ' ').trim();
+  return IGNORED_PROCESSES.some(ig => lower.startsWith(ig));
+}
+
 function priorityClass(p) {
   const n = parseInt(p);
   if (n === 1) return 'p1';
@@ -435,12 +447,12 @@ async function loadData() {
       const priority = String(rec.fields['Priority'] || '');
       if (!['1','2','3','4','5'].includes(priority)) continue;
       const processName = rec.fields['Process (Glide)'] || bolId;
+      if (isIgnoredProcess(processName)) continue;
       if (!processGroups.has(bolId)) {
         processGroups.set(bolId, { processName, priorityCounts: {} });
       }
       const group = processGroups.get(bolId);
       group.priorityCounts[priority] = (group.priorityCounts[priority] || 0) + 1;
-      // keep the most-seen processName (first occurrence is fine)
     }
 
     // ── Build In-Progress: bolId → Set of employeeIds, also employeeId → { bolIds, priority, processName } ──
@@ -452,6 +464,7 @@ async function loadData() {
       const empIds = rec.fields['Employee'] || [];
       const priority = String(rec.fields['Priority'] || '');
       const processName = rec.fields['Process (Glide)'] || '';
+      if (isIgnoredProcess(processName)) continue;
       for (const bolId of bolIds) {
         if (!inProgressByBol.has(bolId)) inProgressByBol.set(bolId, new Set());
         for (const empId of empIds) {
