@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training Needs — Blue Alpha Ops</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1B2438;
+      --navy-light: #233050;
+      --red: #BD3333;
+      --cream: #DDD8C4;
+      --steel: #5B7FA0;
+      --orange: #D97706;
+      --yellow: #CA8A04;
+      --amber: #B45309;
+      --green: #16A34A;
+      --gray: #6B7280;
+      --card-bg: #243050;
+      --border: rgba(255,255,255,0.08);
+    }
+
+    body {
+      background: var(--navy);
+      color: var(--cream);
+      font-family: 'Lato', sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--navy-light);
+      border-bottom: 2px solid var(--red);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header .logo-bar {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+
+    header h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.5rem;
+      color: #fff;
+    }
+
+    header .subtitle {
+      font-size: 0.8rem;
+      color: var(--steel);
+      margin-top: 0.15rem;
+    }
+
+    .header-right {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--steel);
+      text-align: right;
+    }
+
+    #alert-bar {
+      padding: 0.75rem 1.5rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.01em;
+      display: none;
+    }
+    #alert-bar.red   { background: #7f1d1d; color: #fca5a5; border-bottom: 1px solid #ef4444; }
+    #alert-bar.green { background: #14532d; color: #86efac; border-bottom: 1px solid #22c55e; }
+
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 60% 40%;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    .section-card {
+      background: var(--card-bg);
+      border-radius: 0.75rem;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 0.85rem 1.1rem;
+      background: rgba(0,0,0,0.25);
+      border-bottom: 1px solid var(--border);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--steel);
+    }
+
+    /* ── Process Queue ── */
+    .process-list { list-style: none; }
+
+    .process-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-left: 4px solid transparent;
+      transition: background 0.15s;
+    }
+    .process-row:last-child { border-bottom: none; }
+    .process-row.gap-alert { border-left-color: var(--red); }
+    .process-row:hover { background: rgba(255,255,255,0.03); }
+
+    .process-name {
+      flex: 1;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fff;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pills {
+      display: flex;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .pill {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+    .pill-1 { background: #7f1d1d; color: #fca5a5; }
+    .pill-2 { background: #7c2d12; color: #fdba74; }
+    .pill-3 { background: #713f12; color: #fde68a; }
+    .pill-4 { background: #374151; color: #d1d5db; }
+    .pill-5 { background: #1f2937; color: #9ca3af; }
+
+    .on-floor-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .on-floor-label.zero  { color: var(--red); }
+    .on-floor-label.some  { color: var(--green); }
+
+    /* ── On Floor ── */
+    .employee-list { list-style: none; }
+
+    .employee-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .employee-card:last-child { border-bottom: none; }
+    .employee-card.amber-highlight { background: rgba(180,83,9,0.12); }
+
+    .emp-top {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .emp-name {
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #fff;
+      flex: 1;
+    }
+
+    .priority-badge {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 0.35rem;
+    }
+    .priority-badge.p1 { background: var(--red); color: #fff; }
+    .priority-badge.p2 { background: #c2410c; color: #fff; }
+    .priority-badge.p3 { background: var(--yellow); color: #fff; }
+    .priority-badge.p4 { background: #374151; color: #d1d5db; }
+    .priority-badge.p5 { background: #1f2937; color: #9ca3af; }
+
+    .amber-tag {
+      font-size: 0.7rem;
+      color: #fbbf24;
+      font-style: italic;
+    }
+
+    .qual-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .qual-tag {
+      font-size: 0.65rem;
+      background: rgba(91,127,160,0.2);
+      color: var(--steel);
+      border: 1px solid rgba(91,127,160,0.3);
+      border-radius: 0.3rem;
+      padding: 0.1rem 0.4rem;
+    }
+
+    /* ── Training Opportunities ── */
+    #training-section {
+      margin-top: 1.25rem;
+    }
+
+    .opportunity-list { list-style: none; }
+
+    .opportunity-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .opportunity-card:last-child { border-bottom: none; }
+
+    .opportunity-text {
+      flex: 1;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .btn-glide {
+      flex-shrink: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.4rem;
+      border: 1px solid #374151;
+      background: #1f2937;
+      color: #6b7280;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .empty-state {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: var(--steel);
+      font-size: 0.88rem;
+      font-style: italic;
+    }
+
+    /* Loading & error */
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(27,36,56,0.88);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem;
+      color: var(--steel);
+      gap: 0.75rem;
+    }
+
+    .spinner {
+      width: 1.4rem;
+      height: 1.4rem;
+      border: 3px solid rgba(91,127,160,0.25);
+      border-top-color: var(--steel);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #error-banner {
+      background: #7f1d1d;
+      color: #fca5a5;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    .refresh-btn {
+      float: right;
+      font-size: 0.7rem;
+      background: none;
+      border: 1px solid var(--steel);
+      color: var(--steel);
+      border-radius: 0.3rem;
+      padding: 0.1rem 0.5rem;
+      cursor: pointer;
+      font-family: 'Lato', sans-serif;
+    }
+    .refresh-btn:hover { background: rgba(91,127,160,0.15); }
+  </style>
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  Loading data…
+</div>
+
+<header>
+  <div>
+    <div class="logo-bar">
+      <h1>Training Needs</h1>
+    </div>
+    <div class="subtitle">Priority task coverage gaps and cross-training opportunities</div>
+  </div>
+  <div class="header-right">
+    <div id="last-refresh">—</div>
+    <div style="margin-top:0.2rem; color: #4B5563; font-size:0.7rem;">auto-refresh 60s</div>
+  </div>
+</header>
+
+<div id="error-banner"></div>
+<div id="alert-bar"></div>
+
+<main>
+  <div class="two-col">
+    <!-- Left: Process Queue -->
+    <div class="section-card">
+      <div class="section-header">
+        Priority Task Queue
+        <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+      </div>
+      <ul class="process-list" id="process-list">
+        <li class="empty-state">Loading…</li>
+      </ul>
+    </div>
+
+    <!-- Right: On Floor -->
+    <div class="section-card">
+      <div class="section-header">On Floor Now</div>
+      <ul class="employee-list" id="employee-list">
+        <li class="empty-state">Loading…</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Bottom: Training Opportunities -->
+  <div class="section-card" id="training-section">
+    <div class="section-header">Training Opportunities</div>
+    <ul class="opportunity-list" id="opportunity-list">
+      <li class="empty-state">Loading…</li>
+    </ul>
+  </div>
+</main>
+
+<script>
+const TOKEN = '__AIRTABLE_TOKEN__';
+const BASE  = '__AIRTABLE_BASE__';
+
+const TABLES = {
+  production: 'tbloztf6y79U60mqQ',
+  employees:  'tblUDcItnhNhe2GgO',
+  bol:        'tblXYkzOrce7FIXWI',
+};
+
+async function fetchAll(tableId, fields, filterFormula) {
+  let records = [], offset = null;
+  do {
+    let url = `https://api.airtable.com/v0/${BASE}/${tableId}?`;
+    if (filterFormula) url += `filterByFormula=${encodeURIComponent(filterFormula)}&`;
+    fields.forEach(f => { url += `fields[]=${encodeURIComponent(f)}&`; });
+    if (offset) url += `offset=${encodeURIComponent(offset)}&`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}` } });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message || 'Airtable error');
+    records.push(...(data.records || []));
+    offset = data.offset || null;
+  } while (offset);
+  return records;
+}
+
+function priorityClass(p) {
+  const n = parseInt(p);
+  if (n === 1) return 'p1';
+  if (n === 2) return 'p2';
+  if (n === 3) return 'p3';
+  if (n === 4) return 'p4';
+  return 'p5';
+}
+
+function priorityLabel(p) {
+  return `P${p}`;
+}
+
+async function loadData() {
+  const overlay = document.getElementById('loading-overlay');
+  const errBanner = document.getElementById('error-banner');
+  overlay.style.display = 'flex';
+  errBanner.style.display = 'none';
+
+  try {
+    // 1. Fetch To-Do production records
+    const todoFilter = `AND(OR({Status}="To-Do",{Status}="Partial To-Do"),OR({Priority}="1",{Priority}="2",{Priority}="3",{Priority}="4",{Priority}="5"))`;
+    const [todoRecords, inProgressRecords, employeeRecords] = await Promise.all([
+      fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority'], todoFilter),
+      fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority', 'Employee'], '{Status}="In Progress"'),
+      fetchAll(TABLES.employees,  ['Full Name', 'Default Qualifications'], 'NOT({Inactive})'),
+    ]);
+
+    // ── Build process groups from To-Do records ──
+    // Map: bolId → { processName, priorityCounts: {1:N, 2:N, ...} }
+    const processGroups = new Map();
+    for (const rec of todoRecords) {
+      const bolIds = rec.fields['Bill of Labor'] || [];
+      if (!bolIds.length) continue;
+      const bolId = bolIds[0];
+      const priority = String(rec.fields['Priority'] || '');
+      if (!['1','2','3','4','5'].includes(priority)) continue;
+      const processName = rec.fields['Process (Glide)'] || bolId;
+      if (!processGroups.has(bolId)) {
+        processGroups.set(bolId, { processName, priorityCounts: {} });
+      }
+      const group = processGroups.get(bolId);
+      group.priorityCounts[priority] = (group.priorityCounts[priority] || 0) + 1;
+      // keep the most-seen processName (first occurrence is fine)
+    }
+
+    // ── Build In-Progress: bolId → Set of employeeIds, also employeeId → { bolIds, priority, processName } ──
+    // One employee can have multiple in-progress records; track them all
+    const inProgressByBol = new Map(); // bolId → Set<employeeId>
+    const employeeInProgress = new Map(); // employeeId → { bolIds: Set, lowestPriority (numerically), processNames }
+    for (const rec of inProgressRecords) {
+      const bolIds = rec.fields['Bill of Labor'] || [];
+      const empIds = rec.fields['Employee'] || [];
+      const priority = String(rec.fields['Priority'] || '');
+      const processName = rec.fields['Process (Glide)'] || '';
+      for (const bolId of bolIds) {
+        if (!inProgressByBol.has(bolId)) inProgressByBol.set(bolId, new Set());
+        for (const empId of empIds) {
+          inProgressByBol.get(bolId).add(empId);
+        }
+      }
+      for (const empId of empIds) {
+        if (!employeeInProgress.has(empId)) {
+          employeeInProgress.set(empId, { bolIds: new Set(), priority, processName });
+        }
+        const entry = employeeInProgress.get(empId);
+        // Keep the highest-priority (lowest number) task
+        if (!entry.priority || parseInt(priority) < parseInt(entry.priority)) {
+          entry.priority = priority;
+          entry.processName = processName;
+        }
+        for (const bolId of bolIds) entry.bolIds.add(bolId);
+      }
+    }
+
+    // ── Build employee map: employeeId → { name, qualifiedBolIds } ──
+    const employeeMap = new Map();
+    for (const rec of employeeRecords) {
+      const name = (rec.fields['Full Name'] || '').trim() || 'Unknown';
+      const quals = rec.fields['Default Qualifications'] || [];
+      employeeMap.set(rec.id, { name, qualifiedBolIds: new Set(quals) });
+    }
+
+    // ── Compute on-floor counts per BOL ──
+    // qualifiedOnFloor: bolId → count of qualified employees currently In Progress on that BOL
+    const qualifiedOnFloor = new Map();
+    for (const [bolId] of processGroups) {
+      let count = 0;
+      const onFloorEmps = inProgressByBol.get(bolId) || new Set();
+      for (const empId of onFloorEmps) {
+        const emp = employeeMap.get(empId);
+        if (emp && emp.qualifiedBolIds.has(bolId)) count++;
+      }
+      qualifiedOnFloor.set(bolId, count);
+    }
+
+    // ── Sort process groups ──
+    const sortedGroups = [...processGroups.entries()].sort(([aId, aG], [bId, bG]) => {
+      const aMinP = Math.min(...Object.keys(aG.priorityCounts).map(Number));
+      const bMinP = Math.min(...Object.keys(bG.priorityCounts).map(Number));
+      if (aMinP !== bMinP) return aMinP - bMinP;
+      const aTotal = Object.values(aG.priorityCounts).reduce((s,n)=>s+n,0);
+      const bTotal = Object.values(bG.priorityCounts).reduce((s,n)=>s+n,0);
+      return bTotal - aTotal;
+    });
+
+    // ── Identify P1 gaps ──
+    const p1GapBols = new Set();
+    for (const [bolId, group] of sortedGroups) {
+      if (group.priorityCounts['1'] && (qualifiedOnFloor.get(bolId) || 0) === 0) {
+        p1GapBols.add(bolId);
+      }
+    }
+
+    // ── Identify training opportunities ──
+    // For each employee currently In Progress on a lower-priority task,
+    // check if they're qualified for a P1/P2 gap process they're NOT currently on
+    const opportunities = [];
+    for (const [empId, empStatus] of employeeInProgress) {
+      const emp = employeeMap.get(empId);
+      if (!emp) continue;
+      const empPriority = parseInt(empStatus.priority || '9');
+      // Only flag if they're on P3+ (lower than P1/P2)
+      if (empPriority <= 2) continue;
+      for (const [bolId, group] of sortedGroups) {
+        if (!(group.priorityCounts['1'] || group.priorityCounts['2'])) continue;
+        if ((qualifiedOnFloor.get(bolId) || 0) > 0) continue; // gap must be unstaff-qualified
+        if (!emp.qualifiedBolIds.has(bolId)) continue; // must be qualified
+        if (empStatus.bolIds.has(bolId)) continue; // not already on it
+        const p1count = group.priorityCounts['1'] || 0;
+        const p2count = group.priorityCounts['2'] || 0;
+        if (p1count > 0) {
+          opportunities.push({
+            empName: emp.name,
+            empPriority: empStatus.priority,
+            processName: group.processName,
+            p1count,
+          });
+        } else if (p2count > 0) {
+          opportunities.push({
+            empName: emp.name,
+            empPriority: empStatus.priority,
+            processName: group.processName,
+            p2count,
+          });
+        }
+      }
+    }
+
+    // ── Render Alert Bar ──
+    const alertBar = document.getElementById('alert-bar');
+    alertBar.style.display = 'block';
+    if (p1GapBols.size > 0) {
+      alertBar.className = 'red';
+      alertBar.textContent = `⚠️ ${p1GapBols.size} process${p1GapBols.size !== 1 ? 'es' : ''} have P1 tasks with no qualified staff on floor`;
+    } else {
+      alertBar.className = 'green';
+      alertBar.textContent = `✓ All P1 processes have qualified staff on floor`;
+    }
+
+    // ── Render Process List ──
+    const processList = document.getElementById('process-list');
+    if (sortedGroups.length === 0) {
+      processList.innerHTML = '<li class="empty-state">No priority tasks in queue</li>';
+    } else {
+      processList.innerHTML = sortedGroups.map(([bolId, group]) => {
+        const onFloor = qualifiedOnFloor.get(bolId) || 0;
+        const hasP1Gap = group.priorityCounts['1'] && onFloor === 0;
+        const rowClass = hasP1Gap ? 'process-row gap-alert' : 'process-row';
+        const floorClass = onFloor === 0 ? 'zero' : 'some';
+        const pills = [1,2,3,4,5]
+          .filter(p => group.priorityCounts[String(p)])
+          .map(p => `<span class="pill pill-${p}">P${p}·${group.priorityCounts[String(p)]}</span>`)
+          .join('');
+        return `
+          <li class="${rowClass}">
+            <span class="process-name" title="${escHtml(group.processName)}">${escHtml(group.processName)}</span>
+            <div class="pills">${pills}</div>
+            <span class="on-floor-label ${floorClass}">${onFloor} on floor</span>
+          </li>`;
+      }).join('');
+    }
+
+    // ── Render On Floor Now ──
+    // Determine if an employee has an amber highlight:
+    // they're on P4/P5 AND there's a P1/P2 gap process they're qualified for
+    const p12GapBols = new Set([...processGroups.entries()]
+      .filter(([bolId, g]) => (g.priorityCounts['1'] || g.priorityCounts['2']) && (qualifiedOnFloor.get(bolId)||0) === 0)
+      .map(([bolId]) => bolId));
+
+    const employeeList = document.getElementById('employee-list');
+    if (employeeInProgress.size === 0) {
+      employeeList.innerHTML = '<li class="empty-state">No employees currently In Progress</li>';
+    } else {
+      const cards = [];
+      for (const [empId, empStatus] of employeeInProgress) {
+        const emp = employeeMap.get(empId);
+        const name = emp ? emp.name : 'Unknown';
+        const p = empStatus.priority || '?';
+        const pClass = priorityClass(p);
+        const empPNum = parseInt(p);
+        const isAmber = (empPNum >= 4) && emp && [...p12GapBols].some(bolId => emp.qualifiedBolIds.has(bolId) && !empStatus.bolIds.has(bolId));
+        // Qual tags: BOL IDs that this employee is qualified for that are in the processGroups
+        const qualTags = emp ? [...emp.qualifiedBolIds]
+          .filter(b => processGroups.has(b))
+          .map(b => `<span class="qual-tag">${escHtml(processGroups.get(b).processName)}</span>`)
+          .slice(0, 4)
+          .join('') : '';
+        const amberNote = isAmber ? `<span class="amber-tag">⚡ Qualified for higher-priority gap</span>` : '';
+        cards.push(`
+          <li class="employee-card ${isAmber ? 'amber-highlight' : ''}">
+            <div class="emp-top">
+              <span class="emp-name">${escHtml(name)}</span>
+              <span class="priority-badge ${pClass}">${priorityLabel(p)}</span>
+            </div>
+            ${amberNote}
+            ${qualTags ? `<div class="qual-tags">${qualTags}</div>` : ''}
+          </li>`);
+      }
+      employeeList.innerHTML = cards.join('');
+    }
+
+    // ── Render Training Opportunities ──
+    const oppList = document.getElementById('opportunity-list');
+    if (opportunities.length === 0) {
+      oppList.innerHTML = '<li class="empty-state">No training opportunities identified right now</li>';
+    } else {
+      oppList.innerHTML = opportunities.map(opp => {
+        const taskCount = opp.p1count || opp.p2count;
+        const pLevel = opp.p1count ? '1' : '2';
+        return `
+          <li class="opportunity-card">
+            <div class="opportunity-text">
+              ⚡ <strong>${escHtml(opp.empName)}</strong> is on a P${opp.empPriority} task —
+              <strong>${escHtml(opp.processName)}</strong> has ${taskCount} P${pLevel} task${taskCount !== 1 ? 's' : ''} with no qualified staff
+            </div>
+            <button class="btn-glide" disabled title="Coming soon">Send to Glide</button>
+          </li>`;
+      }).join('');
+    }
+
+    // ── Last refresh ──
+    document.getElementById('last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+
+  } catch (err) {
+    const errBanner = document.getElementById('error-banner');
+    errBanner.style.display = 'block';
+    errBanner.textContent = '⚠️ Error loading data: ' + err.message;
+    console.error(err);
+  } finally {
+    document.getElementById('loading-overlay').style.display = 'none';
+  }
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// Initial load + auto-refresh
+loadData();
+setInterval(loadData, 60000);
+</script>
+</body>
+</html>

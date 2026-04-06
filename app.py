@@ -43,6 +43,10 @@ def time_calculator():
 def marketing_v2():
     return serve_html('marketing-v2.html')
 
+@app.route('/training-needs')
+def training_needs():
+    return serve_html('training-needs.html')
+
 @app.route('/paycom-card.jpg')
 def paycom_card():
     with open('paycom-card.jpg', 'rb') as f:
