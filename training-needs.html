@@ -152,11 +152,11 @@
       border-radius: 9999px;
       white-space: nowrap;
     }
-    .pill-1 { background: #7f1d1d; color: #fca5a5; }
-    .pill-2 { background: #7c2d12; color: #fdba74; }
-    .pill-3 { background: #713f12; color: #fde68a; }
-    .pill-4 { background: #374151; color: #d1d5db; }
-    .pill-5 { background: #1f2937; color: #9ca3af; }
+    .pill-1 { background: #DC2626; color: #fff; }
+    .pill-2 { background: #EA580C; color: #fff; }
+    .pill-3 { background: #F59E0B; color: #fff; }
+    .pill-4 { background: #EAB308; color: #1B2438; }
+    .pill-5 { background: #FCD34D; color: #1B2438; }
 
     .on-floor-label {
       font-size: 0.72rem;
@@ -199,11 +199,11 @@
       padding: 0.2rem 0.55rem;
       border-radius: 0.35rem;
     }
-    .priority-badge.p1 { background: var(--red); color: #fff; }
-    .priority-badge.p2 { background: #c2410c; color: #fff; }
-    .priority-badge.p3 { background: var(--yellow); color: #fff; }
-    .priority-badge.p4 { background: #374151; color: #d1d5db; }
-    .priority-badge.p5 { background: #1f2937; color: #9ca3af; }
+    .priority-badge.p1 { background: #DC2626; color: #fff; }
+    .priority-badge.p2 { background: #EA580C; color: #fff; }
+    .priority-badge.p3 { background: #F59E0B; color: #fff; }
+    .priority-badge.p4 { background: #EAB308; color: #1B2438; }
+    .priority-badge.p5 { background: #FCD34D; color: #1B2438; }
 
     .amber-tag {
       font-size: 0.7rem;
@@ -407,7 +407,7 @@ function priorityClass(p) {
 }
 
 function priorityLabel(p) {
-  return `P${p}`;
+  return `${p}`;
 }
 
 async function loadData() {
@@ -551,10 +551,10 @@ async function loadData() {
     alertBar.style.display = 'block';
     if (p1GapBols.size > 0) {
       alertBar.className = 'red';
-      alertBar.textContent = `⚠️ ${p1GapBols.size} process${p1GapBols.size !== 1 ? 'es' : ''} have P1 tasks with no qualified staff on floor`;
+      alertBar.textContent = `⚠️ ${p1GapBols.size} process${p1GapBols.size !== 1 ? 'es' : ''} have priority 1 tasks with no qualified staff on floor`;
     } else {
       alertBar.className = 'green';
-      alertBar.textContent = `✓ All P1 processes have qualified staff on floor`;
+      alertBar.textContent = `✓ All priority 1 processes have qualified staff on floor`;
     }
 
     // ── Render Process List ──
@@ -569,7 +569,7 @@ async function loadData() {
         const floorClass = onFloor === 0 ? 'zero' : 'some';
         const pills = [1,2,3,4,5]
           .filter(p => group.priorityCounts[String(p)])
-          .map(p => `<span class="pill pill-${p}">P${p}·${group.priorityCounts[String(p)]}</span>`)
+          .map(p => `<span class="pill pill-${p}">${group.priorityCounts[String(p)]}</span>`)
           .join('');
         return `
           <li class="${rowClass}">
@@ -630,8 +630,8 @@ async function loadData() {
         return `
           <li class="opportunity-card">
             <div class="opportunity-text">
-              ⚡ <strong>${escHtml(opp.empName)}</strong> is on a P${opp.empPriority} task —
-              <strong>${escHtml(opp.processName)}</strong> has ${taskCount} P${pLevel} task${taskCount !== 1 ? 's' : ''} with no qualified staff
+              ⚡ <strong>${escHtml(opp.empName)}</strong> is on a priority ${opp.empPriority} task —
+              <strong>${escHtml(opp.processName)}</strong> has ${taskCount} priority ${pLevel} task${taskCount !== 1 ? 's' : ''} with no qualified staff
             </div>
             <button class="btn-glide" disabled title="Coming soon">Send to Glide</button>
           </li>`;
