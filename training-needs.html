@@ -483,8 +483,8 @@ async function loadData() {
   errBanner.style.display = 'none';
 
   try {
-    // 1. Fetch To-Do production records
-    const todoFilter = `AND(OR({Status}="To-Do",{Status}="Partial To-Do"),OR({Priority}="1",{Priority}="2",{Priority}="3",{Priority}="4",{Priority}="5"))`;
+    // 1. Fetch To-Do production records (all priorities, not just 1-5)
+    const todoFilter = `OR({Status}="To-Do",{Status}="Partial To-Do")`;
     const [todoRecords, inProgressRecords, employeeRecords] = await Promise.all([
       fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority'], todoFilter),
       fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority', 'Employee'], '{Status}="In Progress"'),
@@ -499,15 +499,17 @@ async function loadData() {
       const bolIds = rec.fields['Bill of Labor'] || [];
       if (!bolIds.length) continue;
       const priority = String(rec.fields['Priority'] || '');
-      if (!['1','2','3','4','5'].includes(priority)) continue;
       const processName = rec.fields['Process (Glide)'] || bolIds[0];
       if (isIgnoredProcess(processName)) continue;
       if (!processGroups.has(processName)) {
-        processGroups.set(processName, { processName, bolIds: new Set(), priorityCounts: {} });
+        processGroups.set(processName, { processName, bolIds: new Set(), priorityCounts: {}, totalCount: 0 });
       }
       const group = processGroups.get(processName);
       bolIds.forEach(id => group.bolIds.add(id));
-      group.priorityCounts[priority] = (group.priorityCounts[priority] || 0) + 1;
+      group.totalCount = (group.totalCount || 0) + 1;
+      if (['1','2','3','4','5'].includes(priority)) {
+        group.priorityCounts[priority] = (group.priorityCounts[priority] || 0) + 1;
+      }
     }
 
     // ── Build In-Progress: bolId → Set of employeeIds, also employeeId → { bolIds, priority, processName } ──
@@ -567,6 +569,11 @@ async function loadData() {
 
     // ── Sort process groups ──
     const sortedGroups = [...processGroups.entries()].sort(([, aG], [, bG]) => {
+      const aHasPriority = Object.keys(aG.priorityCounts).length > 0;
+      const bHasPriority = Object.keys(bG.priorityCounts).length > 0;
+      if (aHasPriority && !bHasPriority) return -1;
+      if (!aHasPriority && bHasPriority) return 1;
+      if (!aHasPriority && !bHasPriority) return aG.processName.localeCompare(bG.processName);
       const aMinP = Math.min(...Object.keys(aG.priorityCounts).map(Number));
       const bMinP = Math.min(...Object.keys(bG.priorityCounts).map(Number));
       if (aMinP !== bMinP) return aMinP - bMinP;
@@ -650,7 +657,7 @@ async function loadData() {
             : `<span class="pill-empty"></span>`
           }</span>`;
         }).join('');
-        const total = Object.values(group.priorityCounts).reduce((s,n) => s+n, 0);
+        const total = group.totalCount || 0;
         return `
           <li class="${rowClass}">
             <span class="process-name" title="${escHtml(group.processName)}">${escHtml(group.processName)}</span>
