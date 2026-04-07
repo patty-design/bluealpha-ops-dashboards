@@ -466,7 +466,7 @@
       <div id="last-refresh">—</div>
       <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
     </div>
-    <div style="margin-top:0.2rem; color:#9CA3AF; font-size:0.65rem; font-family:'Montserrat',sans-serif; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; text-align:right;">auto-refresh 60s</div>
+    <div id="refresh-countdown" style="margin-top:0.2rem; color:#9CA3AF; font-size:0.65rem; font-family:'Montserrat',sans-serif; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; text-align:right;">auto-refresh 60s</div>
   </div>
 </header>
 
@@ -863,6 +863,7 @@ async function loadData() {
 
     // ── Last refresh ──
     document.getElementById('last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    if (typeof resetCountdown === 'function') resetCountdown();
 
   } catch (err) {
     const errBanner = document.getElementById('error-banner');
@@ -882,9 +883,27 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+// Countdown timer
+let countdownSecs = 60;
+let countdownTimer = null;
+
+function resetCountdown() {
+  countdownSecs = 60;
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    countdownSecs--;
+    const el = document.getElementById('refresh-countdown');
+    if (el) el.textContent = `auto-refresh ${countdownSecs}s`;
+    if (countdownSecs <= 0) {
+      countdownSecs = 60;
+      loadData();
+    }
+  }, 1000);
+}
+
 // Initial load + auto-refresh
 loadData();
-setInterval(loadData, 60000);
+resetCountdown();
 </script>
 </body>
 </html>
