@@ -458,7 +458,8 @@ const IGNORED_PROCESSES = [
 function isIgnoredProcess(name) {
   if (!name) return false;
   const lower = name.toLowerCase().replace(/\s+/g, ' ').trim();
-  return IGNORED_PROCESSES.some(ig => lower.startsWith(ig));
+  const nospace = name.toLowerCase().replace(/\s+/g, '');
+  return IGNORED_PROCESSES.some(ig => lower.startsWith(ig) || nospace.startsWith(ig));
 }
 
 function priorityClass(p) {
