@@ -665,6 +665,14 @@ async function loadData() {
       }
     }
 
+    // ── Add empty rows for In Progress processes not yet in processGroups ──
+    // (e.g. SnapAuto has no To-Do tasks but someone is working it — still show a row)
+    for (const [procName] of inProgressByProcessName) {
+      if (!processGroups.has(procName)) {
+        processGroups.set(procName, { processName: procName, bolIds: new Set(), priorityCounts: {}, totalCount: 0 });
+      }
+    }
+
     // ── Compute on-floor counts per process group ──
     // Match by BOL ID overlap OR process name — whichever finds the employee
     const qualifiedOnFloor = new Map(); // processName → count
