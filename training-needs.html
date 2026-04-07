@@ -250,9 +250,15 @@
     .unified-row.gap-alert .process-cell { border-left: 4px solid var(--red); }
 
     .process-cell {
+      display: flex;
+      align-items: center;
       padding: 0.6rem 1rem;
       border-right: 1px solid var(--border);
       min-height: 2.75rem;
+    }
+
+    .process-cell-grid {
+      width: 100%;
     }
 
     .employee-cell {
@@ -479,16 +485,18 @@
       <div class="uh-right">On Floor Now</div>
     </div>
     <div class="col-header-row">
-      <div class="ch-left process-cell-grid">
-        <span></span>
-        <span class="pcol-hdr" style="color:#DC2626;">1</span>
-        <span class="pcol-hdr" style="color:#EA580C;">2</span>
-        <span class="pcol-hdr" style="color:#F59E0B;">3</span>
-        <span class="pcol-hdr" style="color:#EAB308;">4</span>
-        <span class="pcol-hdr" style="color:#FCD34D;">5</span>
-        <span class="pcol-hdr" style="color:#9CA3AF;">Pri</span>
-        <span class="pcol-hdr" style="color:#5B7FA0;">All</span>
-        <span></span>
+      <div class="ch-left">
+        <div class="process-cell-grid">
+          <span></span>
+          <span class="pcol-hdr" style="color:#DC2626;">1</span>
+          <span class="pcol-hdr" style="color:#EA580C;">2</span>
+          <span class="pcol-hdr" style="color:#F59E0B;">3</span>
+          <span class="pcol-hdr" style="color:#EAB308;">4</span>
+          <span class="pcol-hdr" style="color:#FCD34D;">5</span>
+          <span class="pcol-hdr" style="color:#9CA3AF;">Pri</span>
+          <span class="pcol-hdr" style="color:#5B7FA0;">All</span>
+          <span></span>
+        </div>
       </div>
       <div class="ch-right"></div>
     </div>
@@ -811,12 +819,14 @@ async function loadData() {
         const empList = processToEmployees.get(procName) || [];
         html += `
           <div class="${rowClass}">
-            <div class="process-cell process-cell-grid">
-              <span class="process-name" title="${escHtml(group.processName)}">${escHtml(group.processName)}</span>
-              ${cols}
-              <span class="pill-total" style="color:#9CA3AF;">${priorityTotal || ''}</span>
-              <span class="pill-total" style="color:#5B7FA0;">${total}</span>
-              <span class="on-floor-label ${floorClass}">${onFloor} on floor</span>
+            <div class="process-cell">
+              <div class="process-cell-grid">
+                <span class="process-name" title="${escHtml(group.processName)}">${escHtml(group.processName)}</span>
+                ${cols}
+                <span class="pill-total" style="color:#9CA3AF;">${priorityTotal || ''}</span>
+                <span class="pill-total" style="color:#5B7FA0;">${total}</span>
+                <span class="on-floor-label ${floorClass}">${onFloor} on floor</span>
+              </div>
             </div>
             <div class="employee-cell">
               ${empList.length ? renderEmployeeCards(empList, false) : ''}
