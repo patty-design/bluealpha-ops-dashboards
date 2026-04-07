@@ -588,8 +588,9 @@ async function loadData() {
 
     // ── Build In-Progress: bolId → Set of employeeIds, also employeeId → { bolIds, priority, processName } ──
     // One employee can have multiple in-progress records; track them all
-    const inProgressByBol = new Map(); // bolId → Set<employeeId>
-    const employeeInProgress = new Map(); // employeeId → { bolIds: Set, lowestPriority (numerically), processNames }
+    const inProgressByBol = new Map();         // bolId → Set<employeeId>
+    const inProgressByProcessName = new Map(); // processName → Set<employeeId>
+    const employeeInProgress = new Map();       // employeeId → { bolIds, priority, processName, processNames }
     for (const rec of inProgressRecords) {
       const bolIds = rec.fields['Bill of Labor'] || [];
       const empIds = rec.fields['Employee'] || [];
@@ -598,13 +599,15 @@ async function loadData() {
       if (isIgnoredProcess(processName)) continue;
       for (const bolId of bolIds) {
         if (!inProgressByBol.has(bolId)) inProgressByBol.set(bolId, new Set());
-        for (const empId of empIds) {
-          inProgressByBol.get(bolId).add(empId);
-        }
+        for (const empId of empIds) inProgressByBol.get(bolId).add(empId);
+      }
+      if (processName) {
+        if (!inProgressByProcessName.has(processName)) inProgressByProcessName.set(processName, new Set());
+        for (const empId of empIds) inProgressByProcessName.get(processName).add(empId);
       }
       for (const empId of empIds) {
         if (!employeeInProgress.has(empId)) {
-          employeeInProgress.set(empId, { bolIds: new Set(), priority, processName });
+          employeeInProgress.set(empId, { bolIds: new Set(), priority, processName, processNames: new Set() });
         }
         const entry = employeeInProgress.get(empId);
         // Keep the highest-priority (lowest number) task
@@ -612,6 +615,7 @@ async function loadData() {
           entry.priority = priority;
           entry.processName = processName;
         }
+        if (processName) entry.processNames.add(processName);
         for (const bolId of bolIds) entry.bolIds.add(bolId);
       }
     }
@@ -625,18 +629,21 @@ async function loadData() {
     }
 
     // ── Compute on-floor counts per process group ──
-    // An employee counts if they're In Progress on ANY BOL in the group AND are qualified for it
+    // Match by BOL ID overlap OR process name — whichever finds the employee
     const qualifiedOnFloor = new Map(); // processName → count
     for (const [procName, group] of processGroups) {
       const onFloorEmpIds = new Set();
+      // Match by BOL ID
       for (const bolId of group.bolIds) {
         const emps = inProgressByBol.get(bolId) || new Set();
         for (const empId of emps) {
-          const emp = employeeMap.get(empId);
-          if (emp && [...group.bolIds].some(b => emp.qualifiedBolIds.has(b))) {
-            onFloorEmpIds.add(empId);
-          }
+          if (employeeMap.has(empId)) onFloorEmpIds.add(empId);
         }
+      }
+      // Also match by process name
+      const nameEmps = inProgressByProcessName.get(procName) || new Set();
+      for (const empId of nameEmps) {
+        if (employeeMap.has(empId)) onFloorEmpIds.add(empId);
       }
       qualifiedOnFloor.set(procName, onFloorEmpIds.size);
     }
@@ -726,7 +733,9 @@ async function loadData() {
       const emp = employeeMap.get(empId);
       let matched = false;
       for (const [procName, group] of processGroups) {
-        if ([...group.bolIds].some(b => empStatus.bolIds.has(b))) {
+        const bolMatch = [...group.bolIds].some(b => empStatus.bolIds.has(b));
+        const nameMatch = empStatus.processNames && empStatus.processNames.has(procName);
+        if (bolMatch || nameMatch) {
           if (!processToEmployees.has(procName)) processToEmployees.set(procName, []);
           processToEmployees.get(procName).push({ empId, empStatus, emp });
           matched = true;
