@@ -196,9 +196,86 @@
     .on-floor-label.zero  { color: var(--red); }
     .on-floor-label.some  { color: var(--green); }
 
-    /* ── On Floor ── */
-    .employee-list { list-style: none; }
+    /* ── Unified Grid ── */
+    .unified-header {
+      display: grid;
+      grid-template-columns: 60% 40%;
+      border-bottom: 1px solid var(--border);
+    }
+    .uh-left, .uh-right {
+      padding: 0.85rem 1.1rem;
+      background: rgba(0,0,0,0.25);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--steel);
+    }
+    .uh-right { border-left: 1px solid var(--border); }
 
+    .col-header-row {
+      display: grid;
+      grid-template-columns: 60% 40%;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.15);
+    }
+    .ch-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.3rem 1rem;
+    }
+    .ch-right { border-left: 1px solid var(--border); }
+
+    .unified-row {
+      display: grid;
+      grid-template-columns: 60% 40%;
+      border-bottom: 1px solid var(--border);
+    }
+    .unified-row:last-child { border-bottom: none; }
+    .unified-row:hover { background: rgba(255,255,255,0.02); }
+    .unified-row.gap-alert .process-cell { border-left: 4px solid var(--red); }
+
+    .process-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1rem;
+      border-right: 1px solid var(--border);
+      min-height: 2.75rem;
+    }
+
+    .employee-cell {
+      display: flex;
+      flex-direction: column;
+    }
+    .employee-cell .employee-card {
+      border-bottom: 1px solid var(--border);
+    }
+    .employee-cell .employee-card:last-child {
+      border-bottom: none;
+    }
+
+    .unmatched-divider {
+      padding: 0.35rem 1rem;
+      background: rgba(0,0,0,0.2);
+      font-size: 0.68rem;
+      font-family: 'Montserrat', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #4B5563;
+      border-bottom: 1px solid var(--border);
+      border-top: 2px solid var(--border);
+    }
+
+    @media (max-width: 768px) {
+      .unified-header, .col-header-row, .unified-row { grid-template-columns: 1fr; }
+      .uh-right, .ch-right { border-left: none; border-top: 1px solid var(--border); }
+      .process-cell { border-right: none; }
+    }
+
+    /* ── On Floor ── */
     .employee-card {
       display: flex;
       flex-direction: column;
@@ -380,14 +457,17 @@
 <div id="alert-bar"></div>
 
 <main>
-  <div class="two-col">
-    <!-- Left: Process Queue -->
-    <div class="section-card">
-      <div class="section-header">
+  <!-- Unified Process + On Floor Grid -->
+  <div class="section-card">
+    <div class="unified-header">
+      <div class="uh-left">
         Priority Task Queue
         <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
       </div>
-      <div class="process-col-header">
+      <div class="uh-right">On Floor Now</div>
+    </div>
+    <div class="col-header-row">
+      <div class="ch-left">
         <span class="pch-name"></span>
         <div class="priority-cols">
           <span class="pcol" style="color:#DC2626; font-size:0.65rem; font-weight:700; font-family:'Montserrat',sans-serif;">P1</span>
@@ -399,17 +479,10 @@
           <span style="width:5rem;"></span>
         </div>
       </div>
-      <ul class="process-list" id="process-list">
-        <li class="empty-state">Loading…</li>
-      </ul>
+      <div class="ch-right"></div>
     </div>
-
-    <!-- Right: On Floor -->
-    <div class="section-card">
-      <div class="section-header">On Floor Now</div>
-      <ul class="employee-list" id="employee-list">
-        <li class="empty-state">Loading…</li>
-      </ul>
+    <div id="unified-list">
+      <div class="empty-state">Loading…</div>
     </div>
   </div>
 
@@ -641,15 +714,72 @@ async function loadData() {
       alertBar.textContent = `✓ All priority 1 processes have qualified staff on floor`;
     }
 
-    // ── Render Process List ──
-    const processList = document.getElementById('process-list');
-    if (sortedGroups.length === 0) {
-      processList.innerHTML = '<li class="empty-state">No priority tasks in queue</li>';
+    // ── Compute p12 gaps ──
+    const p12GapBols = new Set([...processGroups.entries()]
+      .filter(([procName, g]) => (g.priorityCounts['1'] || g.priorityCounts['2']) && (qualifiedOnFloor.get(procName)||0) === 0)
+      .map(([procName]) => procName));
+
+    // ── Map each employee to their matching process group ──
+    const processToEmployees = new Map(); // processName → [{empId, empStatus, emp}]
+    const unmatchedEmployees = [];
+    for (const [empId, empStatus] of employeeInProgress) {
+      const emp = employeeMap.get(empId);
+      let matched = false;
+      for (const [procName, group] of processGroups) {
+        if ([...group.bolIds].some(b => empStatus.bolIds.has(b))) {
+          if (!processToEmployees.has(procName)) processToEmployees.set(procName, []);
+          processToEmployees.get(procName).push({ empId, empStatus, emp });
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) unmatchedEmployees.push({ empId, empStatus, emp });
+    }
+
+    // ── Employee card renderer ──
+    function renderEmployeeCards(empList, showProcess) {
+      return empList.map(({ empId, empStatus, emp }) => {
+        const name = emp ? emp.name : 'Unknown';
+        const p = empStatus.priority || '?';
+        const pClass = priorityClass(p);
+        const empPNum = parseInt(p);
+        const isAmber = (empPNum >= 4) && emp && [...p12GapBols].some(procName => {
+          const g = processGroups.get(procName);
+          if (!g) return false;
+          const qualified = [...g.bolIds].some(b => emp.qualifiedBolIds.has(b));
+          const alreadyOn = [...g.bolIds].some(b => empStatus.bolIds.has(b));
+          return qualified && !alreadyOn;
+        });
+        const qualTags = emp ? [...processGroups.entries()]
+          .filter(([, g]) => [...g.bolIds].some(b => emp.qualifiedBolIds.has(b)))
+          .map(([, g]) => `<span class="qual-tag">${escHtml(g.processName)}</span>`)
+          .slice(0, 4).join('') : '';
+        const amberNote = isAmber ? `<span class="amber-tag">⚡ Qualified for higher-priority gap</span>` : '';
+        const currentProcess = showProcess && empStatus.processName
+          ? `<div class="current-process">${escHtml(empStatus.processName)}</div>` : '';
+        return `
+          <div class="employee-card ${isAmber ? 'amber-highlight' : ''}">
+            <div class="emp-top">
+              <span class="emp-name">${escHtml(name)}</span>
+              <span class="priority-badge ${pClass}">${priorityLabel(p)}</span>
+            </div>
+            ${currentProcess}
+            ${amberNote}
+            ${qualTags ? `<div class="qual-tags">${qualTags}</div>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    // ── Render Unified Grid ──
+    const unifiedList = document.getElementById('unified-list');
+    if (sortedGroups.length === 0 && employeeInProgress.size === 0) {
+      unifiedList.innerHTML = '<div class="empty-state">No tasks in queue</div>';
     } else {
-      processList.innerHTML = sortedGroups.map(([procName, group]) => {
+      let html = '';
+      for (const [procName, group] of sortedGroups) {
         const onFloor = qualifiedOnFloor.get(procName) || 0;
         const hasP1Gap = group.priorityCounts['1'] && onFloor === 0;
-        const rowClass = hasP1Gap ? 'process-row gap-alert' : 'process-row';
+        const rowClass = hasP1Gap ? 'unified-row gap-alert' : 'unified-row';
         const floorClass = onFloor === 0 ? 'zero' : 'some';
         const cols = [1,2,3,4,5].map(p => {
           const count = group.priorityCounts[String(p)];
@@ -659,61 +789,27 @@ async function loadData() {
           }</span>`;
         }).join('');
         const total = group.totalCount || 0;
-        return `
-          <li class="${rowClass}">
-            <span class="process-name" title="${escHtml(group.processName)}">${escHtml(group.processName)}</span>
-            <div class="priority-cols">${cols}<span class="pill-total">${total}</span></div>
-            <span class="on-floor-label ${floorClass}">${onFloor} on floor</span>
-          </li>`;
-      }).join('');
-    }
-
-    // ── Render On Floor Now ──
-    // Determine if an employee has an amber highlight:
-    // they're on P4/P5 AND there's a P1/P2 gap process they're qualified for
-    const p12GapBols = new Set([...processGroups.entries()]
-      .filter(([procName, g]) => (g.priorityCounts['1'] || g.priorityCounts['2']) && (qualifiedOnFloor.get(procName)||0) === 0)
-      .map(([procName]) => procName));
-
-    const employeeList = document.getElementById('employee-list');
-    if (employeeInProgress.size === 0) {
-      employeeList.innerHTML = '<li class="empty-state">No employees currently In Progress</li>';
-    } else {
-      const cards = [];
-      for (const [empId, empStatus] of employeeInProgress) {
-        const emp = employeeMap.get(empId);
-        const name = emp ? emp.name : 'Unknown';
-        const p = empStatus.priority || '?';
-        const pClass = priorityClass(p);
-        const empPNum = parseInt(p);
-        // Amber: on P4/P5 and qualified for a P1/P2 gap group they're not currently on
-        const isAmber = (empPNum >= 4) && emp && [...p12GapBols].some(procName => {
-          const g = processGroups.get(procName);
-          if (!g) return false;
-          const qualified = [...g.bolIds].some(b => emp.qualifiedBolIds.has(b));
-          const alreadyOn = [...g.bolIds].some(b => empStatus.bolIds.has(b));
-          return qualified && !alreadyOn;
-        });
-        // Qual tags: process names where employee is qualified and has to-do tasks
-        const qualTags = emp ? [...processGroups.entries()]
-          .filter(([, g]) => [...g.bolIds].some(b => emp.qualifiedBolIds.has(b)))
-          .map(([, g]) => `<span class="qual-tag">${escHtml(g.processName)}</span>`)
-          .slice(0, 4)
-          .join('') : '';
-        const amberNote = isAmber ? `<span class="amber-tag">⚡ Qualified for higher-priority gap</span>` : '';
-        const currentProcess = empStatus.processName ? `<div class="current-process">${escHtml(empStatus.processName)}</div>` : '';
-        cards.push(`
-          <li class="employee-card ${isAmber ? 'amber-highlight' : ''}">
-            <div class="emp-top">
-              <span class="emp-name">${escHtml(name)}</span>
-              <span class="priority-badge ${pClass}">${priorityLabel(p)}</span>
+        const empList = processToEmployees.get(procName) || [];
+        html += `
+          <div class="${rowClass}">
+            <div class="process-cell">
+              <span class="process-name" title="${escHtml(group.processName)}">${escHtml(group.processName)}</span>
+              <div class="priority-cols">${cols}<span class="pill-total">${total}</span></div>
+              <span class="on-floor-label ${floorClass}">${onFloor} on floor</span>
             </div>
-            ${currentProcess}
-            ${amberNote}
-            ${qualTags ? `<div class="qual-tags">${qualTags}</div>` : ''}
-          </li>`);
+            <div class="employee-cell">
+              ${empList.length ? renderEmployeeCards(empList, false) : ''}
+            </div>
+          </div>`;
       }
-      employeeList.innerHTML = cards.join('');
+      if (unmatchedEmployees.length > 0) {
+        html += `<div class="unmatched-divider">On floor — process not in task queue</div>
+          <div class="unified-row">
+            <div class="process-cell" style="color:var(--steel); font-size:0.8rem; font-style:italic; justify-content:center;">—</div>
+            <div class="employee-cell">${renderEmployeeCards(unmatchedEmployees, true)}</div>
+          </div>`;
+      }
+      unifiedList.innerHTML = html;
     }
 
     // ── Render Training Opportunities ──
