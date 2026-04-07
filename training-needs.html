@@ -138,19 +138,28 @@
       white-space: nowrap;
     }
 
-    .priority-cols {
-      display: flex;
-      gap: 0;
-      flex-shrink: 0;
+    /* shared grid column template: name | P1 | P2 | P3 | P4 | P5 | total | floor */
+    .process-cell-grid {
+      display: grid;
+      grid-template-columns: 1fr 2.6rem 2.6rem 2.6rem 2.6rem 2.6rem 3.2rem 6rem;
       align-items: center;
+      gap: 0;
     }
 
     .pcol {
-      width: 2.4rem;
-      flex-shrink: 0;
       display: flex;
       justify-content: center;
       align-items: center;
+    }
+
+    .pcol-hdr {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.62rem;
+      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 0.02em;
     }
 
     .pill {
@@ -175,7 +184,7 @@
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.08);
     }
-    .pill-total { font-size: 0.85rem; font-weight: 600; color: var(--steel); padding: 2px 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; white-space: nowrap; margin-left: 0.4rem; }
+    .pill-total { font-size: 0.85rem; font-weight: 600; color: var(--steel); text-align: center; }
     .pill-1 { background: #DC2626; color: #fff; }
     .pill-2 { background: #EA580C; color: #fff; }
     .pill-3 { background: #F59E0B; color: #fff; }
@@ -195,9 +204,8 @@
     .on-floor-label {
       font-size: 0.72rem;
       font-weight: 700;
-      flex-shrink: 0;
-      width: 5rem;
       text-align: right;
+      padding-right: 0.25rem;
     }
     .on-floor-label.zero  { color: var(--red); }
     .on-floor-label.some  { color: var(--green); }
@@ -227,9 +235,6 @@
       background: rgba(0,0,0,0.15);
     }
     .ch-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
       padding: 0.3rem 1rem;
     }
     .ch-right { border-left: 1px solid var(--border); }
@@ -244,9 +249,6 @@
     .unified-row.gap-alert .process-cell { border-left: 4px solid var(--red); }
 
     .process-cell {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
       padding: 0.6rem 1rem;
       border-right: 1px solid var(--border);
       min-height: 2.75rem;
@@ -473,17 +475,15 @@
       <div class="uh-right">On Floor Now</div>
     </div>
     <div class="col-header-row">
-      <div class="ch-left">
-        <span class="pch-name"></span>
-        <div class="priority-cols">
-          <span class="pcol" style="color:#DC2626; font-size:0.62rem; font-weight:700; font-family:'Montserrat',sans-serif; letter-spacing:0.02em;">P1</span>
-          <span class="pcol" style="color:#EA580C; font-size:0.62rem; font-weight:700; font-family:'Montserrat',sans-serif; letter-spacing:0.02em;">P2</span>
-          <span class="pcol" style="color:#F59E0B; font-size:0.62rem; font-weight:700; font-family:'Montserrat',sans-serif; letter-spacing:0.02em;">P3</span>
-          <span class="pcol" style="color:#EAB308; font-size:0.62rem; font-weight:700; font-family:'Montserrat',sans-serif; letter-spacing:0.02em;">P4</span>
-          <span class="pcol" style="color:#9CA3AF; font-size:0.62rem; font-weight:700; font-family:'Montserrat',sans-serif; letter-spacing:0.02em;">P5</span>
-          <span style="width:4.5rem;"></span>
-          <span style="width:5rem;"></span>
-        </div>
+      <div class="ch-left process-cell-grid">
+        <span></span>
+        <span class="pcol-hdr" style="color:#DC2626;">P1</span>
+        <span class="pcol-hdr" style="color:#EA580C;">P2</span>
+        <span class="pcol-hdr" style="color:#F59E0B;">P3</span>
+        <span class="pcol-hdr" style="color:#EAB308;">P4</span>
+        <span class="pcol-hdr" style="color:#9CA3AF;">P5</span>
+        <span></span>
+        <span></span>
       </div>
       <div class="ch-right"></div>
     </div>
@@ -807,9 +807,10 @@ async function loadData() {
         const empList = processToEmployees.get(procName) || [];
         html += `
           <div class="${rowClass}">
-            <div class="process-cell">
+            <div class="process-cell process-cell-grid">
               <span class="process-name" title="${escHtml(group.processName)}">${escHtml(group.processName)}</span>
-              <div class="priority-cols">${cols}<span class="pill-total">${total}</span></div>
+              ${cols}
+              <span class="pill-total">${total}</span>
               <span class="on-floor-label ${floorClass}">${onFloor} on floor</span>
             </div>
             <div class="employee-cell">
