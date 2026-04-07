@@ -169,7 +169,7 @@
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.08);
     }
-    .pill-total { font-size: 0.72rem; font-weight: 600; color: var(--steel); padding: 2px 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; white-space: nowrap; margin-left: 0.4rem; }
+    .pill-total { font-size: 0.85rem; font-weight: 600; color: var(--steel); padding: 2px 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; white-space: nowrap; margin-left: 0.4rem; }
     .pill-1 { background: #DC2626; color: #fff; }
     .pill-2 { background: #EA580C; color: #fff; }
     .pill-3 { background: #F59E0B; color: #fff; }
@@ -652,7 +652,7 @@ async function loadData() {
         return `
           <li class="${rowClass}">
             <span class="process-name" title="${escHtml(group.processName)}">${escHtml(group.processName)}</span>
-            <div class="priority-cols">${cols}<span class="pill-total">total ${total}</span></div>
+            <div class="priority-cols">${cols}<span class="pill-total">${total}</span></div>
             <span class="on-floor-label ${floorClass}">${onFloor} on floor</span>
           </li>`;
       }).join('');
