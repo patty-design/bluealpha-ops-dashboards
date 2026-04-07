@@ -612,19 +612,38 @@ async function loadData() {
       }
     }
 
-    // ── Build In-Progress: bolId → Set of employeeIds, also employeeId → { bolIds, priority, processName } ──
-    // One employee can have multiple in-progress records; track them all
-    const inProgressByBol = new Map();         // bolId → Set<employeeId>
-    const inProgressByProcessName = new Map(); // processName → Set<employeeId>
-    const employeeInProgress = new Map();       // employeeId → { bolIds, priority, processName, processNames }
+    // ── Build In-Progress maps ──
+    const inProgressByBol = new Map();         // bolId → Set<employeeId> (non-ignored only)
+    const inProgressByProcessName = new Map(); // processName → Set<employeeId> (non-ignored only)
+    const employeeInProgress = new Map();       // empId → status (non-ignored processes)
+    const allFloorEmployees = new Map();        // empId → status (ALL non-ShopC processes)
+
     for (const rec of inProgressRecords) {
       const bolIds = rec.fields['Bill of Labor'] || [];
       const empIds = rec.fields['Employee'] || [];
       const priority = String(rec.fields['Priority'] || '');
       const processName = rec.fields['Process (Glide)'] || '';
-      if (isIgnoredProcess(processName)) continue;
+
       // Skip entire task if any assigned employee is Shop C
       if (empIds.some(id => shopCEmpIds.has(id))) continue;
+
+      // Track ALL non-ShopC employees on floor (including ignored processes)
+      for (const empId of empIds) {
+        if (!allFloorEmployees.has(empId)) {
+          allFloorEmployees.set(empId, { bolIds: new Set(), priority, processName, processNames: new Set() });
+        }
+        const entry = allFloorEmployees.get(empId);
+        if (!entry.priority || parseInt(priority) < parseInt(entry.priority)) {
+          entry.priority = priority;
+          entry.processName = processName;
+        }
+        if (processName) entry.processNames.add(processName);
+        for (const bolId of bolIds) entry.bolIds.add(bolId);
+      }
+
+      // Skip ignored processes for the main process-queue tracking
+      if (isIgnoredProcess(processName)) continue;
+
       for (const bolId of bolIds) {
         if (!inProgressByBol.has(bolId)) inProgressByBol.set(bolId, new Set());
         for (const empId of empIds) inProgressByBol.get(bolId).add(empId);
@@ -638,7 +657,6 @@ async function loadData() {
           employeeInProgress.set(empId, { bolIds: new Set(), priority, processName, processNames: new Set() });
         }
         const entry = employeeInProgress.get(empId);
-        // Keep the highest-priority (lowest number) task
         if (!entry.priority || parseInt(priority) < parseInt(entry.priority)) {
           entry.priority = priority;
           entry.processName = processName;
@@ -739,21 +757,28 @@ async function loadData() {
 
     // ── Map each employee to their matching process group ──
     const processToEmployees = new Map(); // processName → [{empId, empStatus, emp}]
-    const unmatchedEmployees = [];
+    const matchedEmpIds = new Set();
     for (const [empId, empStatus] of employeeInProgress) {
       const emp = employeeMap.get(empId);
-      let matched = false;
       for (const [procName, group] of processGroups) {
         const bolMatch = [...group.bolIds].some(b => empStatus.bolIds.has(b));
         const nameMatch = empStatus.processNames && empStatus.processNames.has(procName);
         if (bolMatch || nameMatch) {
           if (!processToEmployees.has(procName)) processToEmployees.set(procName, []);
           processToEmployees.get(procName).push({ empId, empStatus, emp });
-          matched = true;
+          matchedEmpIds.add(empId);
           break;
         }
       }
-      if (!matched) unmatchedEmployees.push({ empId, empStatus, emp });
+    }
+
+    // Unmatched = all non-ShopC floor employees not matched to a process row
+    const unmatchedEmployees = [];
+    for (const [empId, empStatus] of allFloorEmployees) {
+      if (!matchedEmpIds.has(empId)) {
+        const emp = employeeMap.get(empId);
+        unmatchedEmployees.push({ empId, empStatus, emp });
+      }
     }
 
     // ── Employee card renderer ──
