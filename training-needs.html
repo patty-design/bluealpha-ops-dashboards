@@ -205,6 +205,7 @@
     .priority-badge.p3 { background: #F59E0B; color: #fff; }
     .priority-badge.p4 { background: #EAB308; color: #1B2438; }
     .priority-badge.p5 { background: #FCD34D; color: #1B2438; }
+    .priority-badge.p-unknown { background: #4B5563; color: #D1D5DB; }
 
     .amber-tag {
       font-size: 0.7rem;
@@ -225,6 +226,14 @@
       border: 1px solid rgba(91,127,160,0.3);
       border-radius: 0.3rem;
       padding: 0.1rem 0.4rem;
+    }
+
+    .current-process {
+      font-size: 0.78rem;
+      color: var(--cream);
+      opacity: 0.75;
+      font-style: italic;
+      padding-left: 0.1rem;
     }
 
     /* ── Training Opportunities ── */
@@ -416,7 +425,8 @@ function priorityClass(p) {
   if (n === 2) return 'p2';
   if (n === 3) return 'p3';
   if (n === 4) return 'p4';
-  return 'p5';
+  if (n === 5) return 'p5';
+  return 'p-unknown';
 }
 
 function priorityLabel(p) {
@@ -637,12 +647,14 @@ async function loadData() {
           .slice(0, 4)
           .join('') : '';
         const amberNote = isAmber ? `<span class="amber-tag">⚡ Qualified for higher-priority gap</span>` : '';
+        const currentProcess = empStatus.processName ? `<div class="current-process">${escHtml(empStatus.processName)}</div>` : '';
         cards.push(`
           <li class="employee-card ${isAmber ? 'amber-highlight' : ''}">
             <div class="emp-top">
               <span class="emp-name">${escHtml(name)}</span>
               <span class="priority-badge ${pClass}">${priorityLabel(p)}</span>
             </div>
+            ${currentProcess}
             ${amberNote}
             ${qualTags ? `<div class="qual-tags">${qualTags}</div>` : ''}
           </li>`);
