@@ -138,10 +138,10 @@
       white-space: nowrap;
     }
 
-    /* shared grid column template: name | P1 | P2 | P3 | P4 | P5 | total | floor */
+    /* shared grid column template: name | P1 | P2 | P3 | P4 | P5 | pri-total | all-total | floor */
     .process-cell-grid {
       display: grid;
-      grid-template-columns: 1fr 2.6rem 2.6rem 2.6rem 2.6rem 2.6rem 3.2rem 6rem;
+      grid-template-columns: 1fr 2.6rem 2.6rem 2.6rem 2.6rem 2.6rem 3.2rem 3.2rem 6rem;
       align-items: center;
       gap: 0;
     }
@@ -482,7 +482,8 @@
         <span class="pcol-hdr" style="color:#F59E0B;">P3</span>
         <span class="pcol-hdr" style="color:#EAB308;">P4</span>
         <span class="pcol-hdr" style="color:#9CA3AF;">P5</span>
-        <span></span>
+        <span class="pcol-hdr" style="color:#5B7FA0;">Pri</span>
+        <span class="pcol-hdr" style="color:#4B5563;">All</span>
         <span></span>
       </div>
       <div class="ch-right"></div>
@@ -810,6 +811,7 @@ async function loadData() {
             : `<span class="pill-empty"></span>`
           }</span>`;
         }).join('');
+        const priorityTotal = Object.values(group.priorityCounts).reduce((s,n) => s+n, 0);
         const total = group.totalCount || 0;
         const empList = processToEmployees.get(procName) || [];
         html += `
@@ -817,7 +819,8 @@ async function loadData() {
             <div class="process-cell process-cell-grid">
               <span class="process-name" title="${escHtml(group.processName)}">${escHtml(group.processName)}</span>
               ${cols}
-              <span class="pill-total">${total}</span>
+              <span class="pill-total">${priorityTotal || ''}</span>
+              <span class="pill-total" style="color:#4B5563;">${total}</span>
               <span class="on-floor-label ${floorClass}">${onFloor} on floor</span>
             </div>
             <div class="employee-cell">
