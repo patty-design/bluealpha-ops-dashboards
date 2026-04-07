@@ -562,7 +562,7 @@ async function loadData() {
     const [todoRecords, inProgressRecords, employeeRecords] = await Promise.all([
       fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority'], todoFilter),
       fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority', 'Employee'], '{Status}="In Progress"'),
-      fetchAll(TABLES.employees,  ['Full Name', 'Default Qualifications'], 'NOT({Inactive})'),
+      fetchAll(TABLES.employees,  ['Full Name', 'Default Qualifications', 'Shop C'], 'AND(NOT({Inactive}),NOT({Shop C}))'),
     ]);
 
     // ── Build process groups from To-Do records ──
