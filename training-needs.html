@@ -137,10 +137,11 @@
       white-space: nowrap;
     }
 
-    /* shared grid column template: name | P1 | P2 | P3 | P4 | P5 | pri-total | all-total | floor */
+    /* shared grid column template: name | P1 | P2 | P3 | P4 | P5 | pri-total | floor */
+    /* NOTE: "all-total" (total of all tasks incl. non-priority) was removed per Patty — add back as a 3.2rem col before floor if needed */
     .process-cell-grid {
       display: grid;
-      grid-template-columns: 1fr 2.6rem 2.6rem 2.6rem 2.6rem 2.6rem 3.2rem 3.2rem 6rem;
+      grid-template-columns: 1fr 2.6rem 2.6rem 2.6rem 2.6rem 2.6rem 3.2rem 6rem;
       align-items: center;
       gap: 0;
     }
@@ -493,7 +494,6 @@
           <span class="pcol-hdr" style="color:#EAB308;">4</span>
           <span class="pcol-hdr" style="color:#FCD34D;">5</span>
           <span class="pcol-hdr" style="color:#9CA3AF;">Pri</span>
-          <span class="pcol-hdr" style="color:#5B7FA0;">All</span>
           <span></span>
         </div>
       </div>
