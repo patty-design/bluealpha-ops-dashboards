@@ -532,7 +532,7 @@ const IGNORED_PROCESSES = [
   'laser80w','laser80w2','laser155','cleannrollrig',
   'sew','kitting','3d print','testonly','amxcut','daddy/mama',
   'glue','bartackshopc','grommet',
-  'snapshopc','ss10hook','serger'
+  'snapshopc','ss10hook','serger','trim'
 ];
 
 function isIgnoredProcess(name) {
@@ -568,7 +568,7 @@ async function loadData() {
     const [todoRecords, inProgressRecords, employeeRecords] = await Promise.all([
       fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority'], todoFilter),
       fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority', 'Employee'], '{Status}="In Progress"'),
-      fetchAll(TABLES.employees,  ['Full Name', 'Default Qualifications', 'Shop C'], 'AND(NOT({Inactive}),NOT({Shop C}))'),
+      fetchAll(TABLES.employees,  ['Full Name', 'Default Qualifications', 'Shop C'], 'NOT({Inactive})'),
     ]);
 
     // ── Build process groups from To-Do records ──
@@ -603,6 +603,8 @@ async function loadData() {
       const priority = String(rec.fields['Priority'] || '');
       const processName = rec.fields['Process (Glide)'] || '';
       if (isIgnoredProcess(processName)) continue;
+      // Skip entire task if any assigned employee is Shop C
+      if (empIds.some(id => shopCEmpIds.has(id))) continue;
       for (const bolId of bolIds) {
         if (!inProgressByBol.has(bolId)) inProgressByBol.set(bolId, new Set());
         for (const empId of empIds) inProgressByBol.get(bolId).add(empId);
@@ -626,12 +628,17 @@ async function loadData() {
       }
     }
 
-    // ── Build employee map: employeeId → { name, qualifiedBolIds } ──
+    // ── Build employee map and Shop C set ──
     const employeeMap = new Map();
+    const shopCEmpIds = new Set();
     for (const rec of employeeRecords) {
-      const name = (rec.fields['Full Name'] || '').trim() || 'Unknown';
-      const quals = rec.fields['Default Qualifications'] || [];
-      employeeMap.set(rec.id, { name, qualifiedBolIds: new Set(quals) });
+      if (rec.fields['Shop C']) {
+        shopCEmpIds.add(rec.id);
+      } else {
+        const name = (rec.fields['Full Name'] || '').trim() || 'Unknown';
+        const quals = rec.fields['Default Qualifications'] || [];
+        employeeMap.set(rec.id, { name, qualifiedBolIds: new Set(quals) });
+      }
     }
 
     // ── Compute on-floor counts per process group ──
