@@ -592,6 +592,19 @@ async function loadData() {
       }
     }
 
+    // ── Build employee map and Shop C set (must come before In Progress loop) ──
+    const employeeMap = new Map();
+    const shopCEmpIds = new Set();
+    for (const rec of employeeRecords) {
+      if (rec.fields['Shop C']) {
+        shopCEmpIds.add(rec.id);
+      } else {
+        const name = (rec.fields['Full Name'] || '').trim() || 'Unknown';
+        const quals = rec.fields['Default Qualifications'] || [];
+        employeeMap.set(rec.id, { name, qualifiedBolIds: new Set(quals) });
+      }
+    }
+
     // ── Build In-Progress: bolId → Set of employeeIds, also employeeId → { bolIds, priority, processName } ──
     // One employee can have multiple in-progress records; track them all
     const inProgressByBol = new Map();         // bolId → Set<employeeId>
@@ -625,19 +638,6 @@ async function loadData() {
         }
         if (processName) entry.processNames.add(processName);
         for (const bolId of bolIds) entry.bolIds.add(bolId);
-      }
-    }
-
-    // ── Build employee map and Shop C set ──
-    const employeeMap = new Map();
-    const shopCEmpIds = new Set();
-    for (const rec of employeeRecords) {
-      if (rec.fields['Shop C']) {
-        shopCEmpIds.add(rec.id);
-      } else {
-        const name = (rec.fields['Full Name'] || '').trim() || 'Unknown';
-        const quals = rec.fields['Default Qualifications'] || [];
-        employeeMap.set(rec.id, { name, qualifiedBolIds: new Set(quals) });
       }
     }
 
