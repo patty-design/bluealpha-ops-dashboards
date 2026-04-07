@@ -854,7 +854,7 @@ async function loadData() {
           </div>`;
       }
       if (unmatchedEmployees.length > 0) {
-        html += `<div class="unmatched-divider">On floor — process not in task queue</div>
+        html += `<div class="unmatched-divider">OTHER IN PROCESS</div>
           <div class="unified-row">
             <div class="process-cell" style="color:var(--steel); font-size:0.8rem; font-style:italic; justify-content:center;">—</div>
             <div class="employee-cell">${renderEmployeeCards(unmatchedEmployees, true)}</div>
