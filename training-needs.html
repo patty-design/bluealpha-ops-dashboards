@@ -726,16 +726,7 @@ async function loadData() {
       }
     }
 
-    // ── Render Alert Bar ──
-    const alertBar = document.getElementById('alert-bar');
-    alertBar.style.display = 'block';
-    if (p1GapBols.size > 0) {
-      alertBar.className = 'red';
-      alertBar.textContent = `⚠️ ${p1GapBols.size} process${p1GapBols.size !== 1 ? 'es' : ''} have priority 1 tasks with no qualified staff on floor`;
-    } else {
-      alertBar.className = 'green';
-      alertBar.textContent = `✓ All priority 1 processes have qualified staff on floor`;
-    }
+    // Alert bar intentionally hidden
 
     // ── Compute p12 gaps ──
     const p12GapBols = new Set([...processGroups.entries()]
