@@ -686,18 +686,21 @@ async function loadData() {
     }
 
     // ── Sort process groups ──
+    // Primary: highest priority total first | Secondary: lowest min-priority first, then alpha
     const sortedGroups = [...processGroups.entries()].sort(([, aG], [, bG]) => {
-      const aHasPriority = Object.keys(aG.priorityCounts).length > 0;
-      const bHasPriority = Object.keys(bG.priorityCounts).length > 0;
+      const aPriTotal = Object.values(aG.priorityCounts).reduce((s,n)=>s+n,0);
+      const bPriTotal = Object.values(bG.priorityCounts).reduce((s,n)=>s+n,0);
+      if (bPriTotal !== aPriTotal) return bPriTotal - aPriTotal;
+      // Secondary: processes with any priority before those with none
+      const aHasPriority = aPriTotal > 0;
+      const bHasPriority = bPriTotal > 0;
       if (aHasPriority && !bHasPriority) return -1;
       if (!aHasPriority && bHasPriority) return 1;
       if (!aHasPriority && !bHasPriority) return aG.processName.localeCompare(bG.processName);
+      // Both have priority tasks — sort by lowest priority number
       const aMinP = Math.min(...Object.keys(aG.priorityCounts).map(Number));
       const bMinP = Math.min(...Object.keys(bG.priorityCounts).map(Number));
-      if (aMinP !== bMinP) return aMinP - bMinP;
-      const aTotal = Object.values(aG.priorityCounts).reduce((s,n)=>s+n,0);
-      const bTotal = Object.values(bG.priorityCounts).reduce((s,n)=>s+n,0);
-      return bTotal - aTotal;
+      return aMinP - bMinP;
     });
 
     // ── Identify P1 gaps ──
