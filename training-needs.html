@@ -583,9 +583,9 @@ async function loadData() {
     const processGroups = new Map();
     for (const rec of todoRecords) {
       const bolIds = rec.fields['Bill of Labor'] || [];
-      if (!bolIds.length) continue;
       const priority = String(rec.fields['Priority'] || '');
-      const processName = rec.fields['Process (Glide)'] || bolIds[0];
+      const processName = rec.fields['Process (Glide)'] || (bolIds.length ? bolIds[0] : null);
+      if (!processName) continue;
       if (isIgnoredProcess(processName)) continue;
       if (!processGroups.has(processName)) {
         processGroups.set(processName, { processName, bolIds: new Set(), priorityCounts: {}, totalCount: 0 });
