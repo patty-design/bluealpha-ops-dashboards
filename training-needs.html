@@ -862,25 +862,6 @@ async function loadData() {
       unifiedList.innerHTML = html;
     }
 
-    // ── Render Training Opportunities ──
-    const oppList = document.getElementById('opportunity-list');
-    if (opportunities.length === 0) {
-      oppList.innerHTML = '<li class="empty-state">No training opportunities identified right now</li>';
-    } else {
-      oppList.innerHTML = opportunities.map(opp => {
-        const taskCount = opp.p1count || opp.p2count;
-        const pLevel = opp.p1count ? '1' : '2';
-        return `
-          <li class="opportunity-card">
-            <div class="opportunity-text">
-              ⚡ <strong>${escHtml(opp.empName)}</strong> is on a priority ${opp.empPriority} task —
-              <strong>${escHtml(opp.processName)}</strong> has ${taskCount} priority ${pLevel} task${taskCount !== 1 ? 's' : ''} with no qualified staff
-            </div>
-            <button class="btn-glide" disabled title="Coming soon">Send to Glide</button>
-          </li>`;
-      }).join('');
-    }
-
     // ── Last refresh ──
     document.getElementById('last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
 
