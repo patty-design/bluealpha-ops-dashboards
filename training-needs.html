@@ -548,6 +548,19 @@ function isIgnoredProcess(name) {
   return IGNORED_PROCESSES.some(ig => lower.startsWith(ig) || nospace.startsWith(ig));
 }
 
+// Consolidate multiple Airtable process names into a single display row.
+// Key: lowercase+no-spaces version of the Airtable name → canonical display name.
+const PROCESS_CONSOLIDATIONS = {
+  'hotcut':  'HotCut',
+  'hotcut2': 'HotCut',
+};
+
+function consolidateProcessName(name) {
+  if (!name) return name;
+  const key = name.toLowerCase().replace(/\s+/g, '');
+  return PROCESS_CONSOLIDATIONS[key] || name;
+}
+
 function priorityClass(p) {
   const n = parseInt(p);
   if (n === 1) return 'p1';
@@ -584,9 +597,10 @@ async function loadData() {
     for (const rec of todoRecords) {
       const bolIds = rec.fields['Bill of Labor'] || [];
       const priority = String(rec.fields['Priority'] || '');
-      const processName = rec.fields['Process (Glide)'] || (bolIds.length ? bolIds[0] : null);
-      if (!processName) continue;
-      if (isIgnoredProcess(processName)) continue;
+      const rawProcessName = rec.fields['Process (Glide)'] || (bolIds.length ? bolIds[0] : null);
+      if (!rawProcessName) continue;
+      if (isIgnoredProcess(rawProcessName)) continue;
+      const processName = consolidateProcessName(rawProcessName);
       if (!processGroups.has(processName)) {
         processGroups.set(processName, { processName, bolIds: new Set(), priorityCounts: {}, totalCount: 0 });
       }
@@ -621,7 +635,8 @@ async function loadData() {
       const bolIds = rec.fields['Bill of Labor'] || [];
       const empIds = rec.fields['Employee'] || [];
       const priority = String(rec.fields['Priority'] || '');
-      const processName = rec.fields['Process (Glide)'] || '';
+      const rawProcessName = rec.fields['Process (Glide)'] || '';
+      const processName = consolidateProcessName(rawProcessName);
 
       // Skip entire task if any assigned employee is Shop C
       if (empIds.some(id => shopCEmpIds.has(id))) continue;
@@ -641,7 +656,7 @@ async function loadData() {
       }
 
       // Skip ignored processes for the main process-queue tracking
-      if (isIgnoredProcess(processName)) continue;
+      if (isIgnoredProcess(rawProcessName)) continue;
 
       for (const bolId of bolIds) {
         if (!inProgressByBol.has(bolId)) inProgressByBol.set(bolId, new Set());
