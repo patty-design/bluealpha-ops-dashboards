@@ -533,6 +533,18 @@ async function fetchAll(tableId, fields, filterFormula) {
   return records;
 }
 
+function _saveCache(key, data) {
+  try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
+}
+function _loadCache(key, ttlMs) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw);
+    return (Date.now() - ts < ttlMs) ? data : null;
+  } catch(e) { return null; }
+}
+
 const IGNORED_PROCESSES = [
   'finalcountrawmaterials','finalcountbelts','finalcountaccessories',
   'laser80w','laser80w2','laser155','cleannrollrig',
@@ -578,259 +590,253 @@ function priorityLabel(p) {
   return `${p}`;
 }
 
-async function loadData() {
-  const overlay = document.getElementById('loading-overlay');
-  const errBanner = document.getElementById('error-banner');
-  overlay.style.display = 'flex';
-  errBanner.style.display = 'none';
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
-  try {
-    // 1. Fetch To-Do production records (all priorities, not just 1-5)
-    const todoFilter = `OR({Status}="To-Do",{Status}="Partial To-Do")`;
-    const [todoRecords, inProgressRecords, employeeRecords] = await Promise.all([
-      fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority'], todoFilter),
-      fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority', 'Employee'], '{Status}="In Progress"'),
-      fetchAll(TABLES.employees,  ['Full Name', 'Default Qualifications', 'Shop C'], 'NOT({Inactive})'),
-    ]);
+async function _processAndRender(todoRecords, inProgressRecords, employeeRecords) {
+  // ── Build process groups from To-Do records ──
+  // Grouped by process NAME (not BOL ID) so duplicates like "BarTackMain" merge.
+  // Map: processName → { bolIds: Set, priorityCounts: {1:N, ...} }
+  const processGroups = new Map();
+  for (const rec of todoRecords) {
+    const bolIds = rec.fields['Bill of Labor'] || [];
+    const priority = String(rec.fields['Priority'] || '');
+    const rawProcessName = rec.fields['Process (Glide)'] || (bolIds.length ? bolIds[0] : null);
+    if (!rawProcessName) continue;
+    if (isIgnoredProcess(rawProcessName)) continue;
+    const processName = consolidateProcessName(rawProcessName);
+    if (!processGroups.has(processName)) {
+      processGroups.set(processName, { processName, bolIds: new Set(), priorityCounts: {}, totalCount: 0 });
+    }
+    const group = processGroups.get(processName);
+    bolIds.forEach(id => group.bolIds.add(id));
+    group.totalCount = (group.totalCount || 0) + 1;
+    if (['1','2','3','4','5'].includes(priority)) {
+      group.priorityCounts[priority] = (group.priorityCounts[priority] || 0) + 1;
+    }
+  }
 
-    // ── Build process groups from To-Do records ──
-    // Grouped by process NAME (not BOL ID) so duplicates like "BarTackMain" merge.
-    // Map: processName → { bolIds: Set, priorityCounts: {1:N, ...} }
-    const processGroups = new Map();
-    for (const rec of todoRecords) {
-      const bolIds = rec.fields['Bill of Labor'] || [];
-      const priority = String(rec.fields['Priority'] || '');
-      const rawProcessName = rec.fields['Process (Glide)'] || (bolIds.length ? bolIds[0] : null);
-      if (!rawProcessName) continue;
-      if (isIgnoredProcess(rawProcessName)) continue;
-      const processName = consolidateProcessName(rawProcessName);
-      if (!processGroups.has(processName)) {
-        processGroups.set(processName, { processName, bolIds: new Set(), priorityCounts: {}, totalCount: 0 });
+  // ── Build employee map and Shop C set (must come before In Progress loop) ──
+  const employeeMap = new Map();
+  const shopCEmpIds = new Set();
+  for (const rec of employeeRecords) {
+    if (rec.fields['Shop C']) {
+      shopCEmpIds.add(rec.id);
+    } else {
+      const name = (rec.fields['Full Name'] || '').trim() || 'Unknown';
+      const quals = rec.fields['Default Qualifications'] || [];
+      employeeMap.set(rec.id, { name, qualifiedBolIds: new Set(quals) });
+    }
+  }
+
+  // ── Build In-Progress maps ──
+  const inProgressByBol = new Map();         // bolId → Set<employeeId> (non-ignored only)
+  const inProgressByProcessName = new Map(); // processName → Set<employeeId> (non-ignored only)
+  const employeeInProgress = new Map();       // empId → status (non-ignored processes)
+  const allFloorEmployees = new Map();        // empId → status (ALL non-ShopC processes)
+
+  for (const rec of inProgressRecords) {
+    const bolIds = rec.fields['Bill of Labor'] || [];
+    const empIds = rec.fields['Employee'] || [];
+    const priority = String(rec.fields['Priority'] || '');
+    const rawProcessName = rec.fields['Process (Glide)'] || '';
+    const processName = consolidateProcessName(rawProcessName);
+
+    // Skip entire task if any assigned employee is Shop C
+    if (empIds.some(id => shopCEmpIds.has(id))) continue;
+
+    // Track ALL non-ShopC employees on floor (including ignored processes)
+    for (const empId of empIds) {
+      if (!allFloorEmployees.has(empId)) {
+        allFloorEmployees.set(empId, { bolIds: new Set(), priority, processName, processNames: new Set() });
       }
-      const group = processGroups.get(processName);
-      bolIds.forEach(id => group.bolIds.add(id));
-      group.totalCount = (group.totalCount || 0) + 1;
-      if (['1','2','3','4','5'].includes(priority)) {
-        group.priorityCounts[priority] = (group.priorityCounts[priority] || 0) + 1;
+      const entry = allFloorEmployees.get(empId);
+      if (!entry.priority || parseInt(priority) < parseInt(entry.priority)) {
+        entry.priority = priority;
+        entry.processName = processName;
       }
+      if (processName) entry.processNames.add(processName);
+      for (const bolId of bolIds) entry.bolIds.add(bolId);
     }
 
-    // ── Build employee map and Shop C set (must come before In Progress loop) ──
-    const employeeMap = new Map();
-    const shopCEmpIds = new Set();
-    for (const rec of employeeRecords) {
-      if (rec.fields['Shop C']) {
-        shopCEmpIds.add(rec.id);
-      } else {
-        const name = (rec.fields['Full Name'] || '').trim() || 'Unknown';
-        const quals = rec.fields['Default Qualifications'] || [];
-        employeeMap.set(rec.id, { name, qualifiedBolIds: new Set(quals) });
-      }
+    // Skip ignored processes for the main process-queue tracking
+    if (isIgnoredProcess(rawProcessName)) continue;
+
+    for (const bolId of bolIds) {
+      if (!inProgressByBol.has(bolId)) inProgressByBol.set(bolId, new Set());
+      for (const empId of empIds) inProgressByBol.get(bolId).add(empId);
     }
-
-    // ── Build In-Progress maps ──
-    const inProgressByBol = new Map();         // bolId → Set<employeeId> (non-ignored only)
-    const inProgressByProcessName = new Map(); // processName → Set<employeeId> (non-ignored only)
-    const employeeInProgress = new Map();       // empId → status (non-ignored processes)
-    const allFloorEmployees = new Map();        // empId → status (ALL non-ShopC processes)
-
-    for (const rec of inProgressRecords) {
-      const bolIds = rec.fields['Bill of Labor'] || [];
-      const empIds = rec.fields['Employee'] || [];
-      const priority = String(rec.fields['Priority'] || '');
-      const rawProcessName = rec.fields['Process (Glide)'] || '';
-      const processName = consolidateProcessName(rawProcessName);
-
-      // Skip entire task if any assigned employee is Shop C
-      if (empIds.some(id => shopCEmpIds.has(id))) continue;
-
-      // Track ALL non-ShopC employees on floor (including ignored processes)
-      for (const empId of empIds) {
-        if (!allFloorEmployees.has(empId)) {
-          allFloorEmployees.set(empId, { bolIds: new Set(), priority, processName, processNames: new Set() });
-        }
-        const entry = allFloorEmployees.get(empId);
-        if (!entry.priority || parseInt(priority) < parseInt(entry.priority)) {
-          entry.priority = priority;
-          entry.processName = processName;
-        }
-        if (processName) entry.processNames.add(processName);
-        for (const bolId of bolIds) entry.bolIds.add(bolId);
-      }
-
-      // Skip ignored processes for the main process-queue tracking
-      if (isIgnoredProcess(rawProcessName)) continue;
-
-      for (const bolId of bolIds) {
-        if (!inProgressByBol.has(bolId)) inProgressByBol.set(bolId, new Set());
-        for (const empId of empIds) inProgressByBol.get(bolId).add(empId);
-      }
-      if (processName) {
-        if (!inProgressByProcessName.has(processName)) inProgressByProcessName.set(processName, new Set());
-        for (const empId of empIds) inProgressByProcessName.get(processName).add(empId);
-      }
-      for (const empId of empIds) {
-        if (!employeeInProgress.has(empId)) {
-          employeeInProgress.set(empId, { bolIds: new Set(), priority, processName, processNames: new Set() });
-        }
-        const entry = employeeInProgress.get(empId);
-        if (!entry.priority || parseInt(priority) < parseInt(entry.priority)) {
-          entry.priority = priority;
-          entry.processName = processName;
-        }
-        if (processName) entry.processNames.add(processName);
-        for (const bolId of bolIds) entry.bolIds.add(bolId);
-      }
+    if (processName) {
+      if (!inProgressByProcessName.has(processName)) inProgressByProcessName.set(processName, new Set());
+      for (const empId of empIds) inProgressByProcessName.get(processName).add(empId);
     }
-
-    // ── Add empty rows for In Progress processes not yet in processGroups ──
-    // (e.g. SnapAuto has no To-Do tasks but someone is working it — still show a row)
-    for (const [procName] of inProgressByProcessName) {
-      if (!processGroups.has(procName)) {
-        processGroups.set(procName, { processName: procName, bolIds: new Set(), priorityCounts: {}, totalCount: 0 });
+    for (const empId of empIds) {
+      if (!employeeInProgress.has(empId)) {
+        employeeInProgress.set(empId, { bolIds: new Set(), priority, processName, processNames: new Set() });
       }
+      const entry = employeeInProgress.get(empId);
+      if (!entry.priority || parseInt(priority) < parseInt(entry.priority)) {
+        entry.priority = priority;
+        entry.processName = processName;
+      }
+      if (processName) entry.processNames.add(processName);
+      for (const bolId of bolIds) entry.bolIds.add(bolId);
     }
+  }
 
-    // ── Compute on-floor counts per process group ──
-    // Match by BOL ID overlap OR process name — whichever finds the employee
-    const qualifiedOnFloor = new Map(); // processName → count
-    for (const [procName, group] of processGroups) {
-      const onFloorEmpIds = new Set();
-      // Match by BOL ID
-      for (const bolId of group.bolIds) {
-        const emps = inProgressByBol.get(bolId) || new Set();
-        for (const empId of emps) {
-          if (employeeMap.has(empId)) onFloorEmpIds.add(empId);
-        }
-      }
-      // Also match by process name
-      const nameEmps = inProgressByProcessName.get(procName) || new Set();
-      for (const empId of nameEmps) {
+  // ── Add empty rows for In Progress processes not yet in processGroups ──
+  // (e.g. SnapAuto has no To-Do tasks but someone is working it — still show a row)
+  for (const [procName] of inProgressByProcessName) {
+    if (!processGroups.has(procName)) {
+      processGroups.set(procName, { processName: procName, bolIds: new Set(), priorityCounts: {}, totalCount: 0 });
+    }
+  }
+
+  // ── Compute on-floor counts per process group ──
+  // Match by BOL ID overlap OR process name — whichever finds the employee
+  const qualifiedOnFloor = new Map(); // processName → count
+  for (const [procName, group] of processGroups) {
+    const onFloorEmpIds = new Set();
+    // Match by BOL ID
+    for (const bolId of group.bolIds) {
+      const emps = inProgressByBol.get(bolId) || new Set();
+      for (const empId of emps) {
         if (employeeMap.has(empId)) onFloorEmpIds.add(empId);
       }
-      qualifiedOnFloor.set(procName, onFloorEmpIds.size);
     }
+    // Also match by process name
+    const nameEmps = inProgressByProcessName.get(procName) || new Set();
+    for (const empId of nameEmps) {
+      if (employeeMap.has(empId)) onFloorEmpIds.add(empId);
+    }
+    qualifiedOnFloor.set(procName, onFloorEmpIds.size);
+  }
 
-    // ── Sort process groups ──
-    // Primary: highest priority total first | Secondary: lowest min-priority first, then alpha
-    const sortedGroups = [...processGroups.entries()].sort(([, aG], [, bG]) => {
-      const aPriTotal = Object.values(aG.priorityCounts).reduce((s,n)=>s+n,0);
-      const bPriTotal = Object.values(bG.priorityCounts).reduce((s,n)=>s+n,0);
-      if (bPriTotal !== aPriTotal) return bPriTotal - aPriTotal;
-      // Secondary: processes with any priority before those with none
-      const aHasPriority = aPriTotal > 0;
-      const bHasPriority = bPriTotal > 0;
-      if (aHasPriority && !bHasPriority) return -1;
-      if (!aHasPriority && bHasPriority) return 1;
-      if (!aHasPriority && !bHasPriority) return aG.processName.localeCompare(bG.processName);
-      // Both have priority tasks — sort by lowest priority number
-      const aMinP = Math.min(...Object.keys(aG.priorityCounts).map(Number));
-      const bMinP = Math.min(...Object.keys(bG.priorityCounts).map(Number));
-      return aMinP - bMinP;
-    });
+  // ── Sort process groups ──
+  // Primary: highest priority total first | Secondary: lowest min-priority first, then alpha
+  const sortedGroups = [...processGroups.entries()].sort(([, aG], [, bG]) => {
+    const aPriTotal = Object.values(aG.priorityCounts).reduce((s,n)=>s+n,0);
+    const bPriTotal = Object.values(bG.priorityCounts).reduce((s,n)=>s+n,0);
+    if (bPriTotal !== aPriTotal) return bPriTotal - aPriTotal;
+    // Secondary: processes with any priority before those with none
+    const aHasPriority = aPriTotal > 0;
+    const bHasPriority = bPriTotal > 0;
+    if (aHasPriority && !bHasPriority) return -1;
+    if (!aHasPriority && bHasPriority) return 1;
+    if (!aHasPriority && !bHasPriority) return aG.processName.localeCompare(bG.processName);
+    // Both have priority tasks — sort by lowest priority number
+    const aMinP = Math.min(...Object.keys(aG.priorityCounts).map(Number));
+    const bMinP = Math.min(...Object.keys(bG.priorityCounts).map(Number));
+    return aMinP - bMinP;
+  });
 
-    // ── Identify P1 gaps ──
-    const p1GapBols = new Set(); // using processName as key here
+  // ── Identify P1 gaps ──
+  const p1GapBols = new Set(); // using processName as key here
+  for (const [procName, group] of sortedGroups) {
+    if (group.priorityCounts['1'] && (qualifiedOnFloor.get(procName) || 0) === 0) {
+      p1GapBols.add(procName);
+    }
+  }
+
+  // ── Identify training opportunities ──
+  // For each employee currently In Progress on a lower-priority task,
+  // check if they're qualified for a P1/P2 gap process they're NOT currently on
+  const opportunities = [];
+  for (const [empId, empStatus] of employeeInProgress) {
+    const emp = employeeMap.get(empId);
+    if (!emp) continue;
+    const empPriority = parseInt(empStatus.priority || '9');
+    // Only flag if they're on P3+ (lower than P1/P2)
+    if (empPriority <= 2) continue;
     for (const [procName, group] of sortedGroups) {
-      if (group.priorityCounts['1'] && (qualifiedOnFloor.get(procName) || 0) === 0) {
-        p1GapBols.add(procName);
-      }
-    }
-
-    // ── Identify training opportunities ──
-    // For each employee currently In Progress on a lower-priority task,
-    // check if they're qualified for a P1/P2 gap process they're NOT currently on
-    const opportunities = [];
-    for (const [empId, empStatus] of employeeInProgress) {
-      const emp = employeeMap.get(empId);
-      if (!emp) continue;
-      const empPriority = parseInt(empStatus.priority || '9');
-      // Only flag if they're on P3+ (lower than P1/P2)
-      if (empPriority <= 2) continue;
-      for (const [procName, group] of sortedGroups) {
-        if (!(group.priorityCounts['1'] || group.priorityCounts['2'])) continue;
-        if ((qualifiedOnFloor.get(procName) || 0) > 0) continue;
-        // Qualified if emp is qualified for ANY bol in this group
-        const isQualified = [...group.bolIds].some(b => emp.qualifiedBolIds.has(b));
-        if (!isQualified) continue;
-        // Already on it if currently in-progress on any bol in this group
-        const alreadyOn = [...group.bolIds].some(b => empStatus.bolIds.has(b));
-        if (alreadyOn) continue;
-        const p1count = group.priorityCounts['1'] || 0;
-        const p2count = group.priorityCounts['2'] || 0;
-        if (p1count > 0) {
-          opportunities.push({
-            empName: emp.name,
-            empPriority: empStatus.priority,
-            processName: group.processName,
-            p1count,
-          });
-        } else if (p2count > 0) {
-          opportunities.push({
-            empName: emp.name,
-            empPriority: empStatus.priority,
-            processName: group.processName,
-            p2count,
-          });
-        }
-      }
-    }
-
-    // Alert bar intentionally hidden
-
-    // ── Compute p12 gaps ──
-    const p12GapBols = new Set([...processGroups.entries()]
-      .filter(([procName, g]) => (g.priorityCounts['1'] || g.priorityCounts['2']) && (qualifiedOnFloor.get(procName)||0) === 0)
-      .map(([procName]) => procName));
-
-    // ── Map each employee to their matching process group ──
-    const processToEmployees = new Map(); // processName → [{empId, empStatus, emp}]
-    const matchedEmpIds = new Set();
-    for (const [empId, empStatus] of employeeInProgress) {
-      const emp = employeeMap.get(empId);
-      for (const [procName, group] of processGroups) {
-        const bolMatch = [...group.bolIds].some(b => empStatus.bolIds.has(b));
-        const nameMatch = empStatus.processNames && empStatus.processNames.has(procName);
-        if (bolMatch || nameMatch) {
-          if (!processToEmployees.has(procName)) processToEmployees.set(procName, []);
-          processToEmployees.get(procName).push({ empId, empStatus, emp });
-          matchedEmpIds.add(empId);
-          break;
-        }
-      }
-    }
-
-    // Unmatched = all non-ShopC floor employees not matched to a process row
-    const unmatchedEmployees = [];
-    for (const [empId, empStatus] of allFloorEmployees) {
-      if (!matchedEmpIds.has(empId)) {
-        const emp = employeeMap.get(empId);
-        unmatchedEmployees.push({ empId, empStatus, emp });
-      }
-    }
-
-    // ── Employee card renderer ──
-    function renderEmployeeCards(empList, showProcess) {
-      return empList.map(({ empId, empStatus, emp }) => {
-        const name = emp ? emp.name : 'Unknown';
-        const p = empStatus.priority || '?';
-        const pClass = priorityClass(p);
-        const empPNum = parseInt(p);
-        const isAmber = (empPNum >= 4) && emp && [...p12GapBols].some(procName => {
-          const g = processGroups.get(procName);
-          if (!g) return false;
-          const qualified = [...g.bolIds].some(b => emp.qualifiedBolIds.has(b));
-          const alreadyOn = [...g.bolIds].some(b => empStatus.bolIds.has(b));
-          return qualified && !alreadyOn;
+      if (!(group.priorityCounts['1'] || group.priorityCounts['2'])) continue;
+      if ((qualifiedOnFloor.get(procName) || 0) > 0) continue;
+      // Qualified if emp is qualified for ANY bol in this group
+      const isQualified = [...group.bolIds].some(b => emp.qualifiedBolIds.has(b));
+      if (!isQualified) continue;
+      // Already on it if currently in-progress on any bol in this group
+      const alreadyOn = [...group.bolIds].some(b => empStatus.bolIds.has(b));
+      if (alreadyOn) continue;
+      const p1count = group.priorityCounts['1'] || 0;
+      const p2count = group.priorityCounts['2'] || 0;
+      if (p1count > 0) {
+        opportunities.push({
+          empName: emp.name,
+          empPriority: empStatus.priority,
+          processName: group.processName,
+          p1count,
         });
-        const qualTags = emp ? [...processGroups.entries()]
-          .filter(([, g]) => [...g.bolIds].some(b => emp.qualifiedBolIds.has(b)))
-          .map(([, g]) => `<span class="qual-tag">${escHtml(g.processName)}</span>`)
-          .slice(0, 4).join('') : '';
-        const amberNote = isAmber ? `<span class="amber-tag">⚡ Qualified for higher-priority gap</span>` : '';
-        const currentProcess = showProcess && empStatus.processName
-          ? `<div class="current-process">${escHtml(empStatus.processName)}</div>` : '';
-        return `
+      } else if (p2count > 0) {
+        opportunities.push({
+          empName: emp.name,
+          empPriority: empStatus.priority,
+          processName: group.processName,
+          p2count,
+        });
+      }
+    }
+  }
+
+  // Alert bar intentionally hidden
+
+  // ── Compute p12 gaps ──
+  const p12GapBols = new Set([...processGroups.entries()]
+    .filter(([procName, g]) => (g.priorityCounts['1'] || g.priorityCounts['2']) && (qualifiedOnFloor.get(procName)||0) === 0)
+    .map(([procName]) => procName));
+
+  // ── Map each employee to their matching process group ──
+  const processToEmployees = new Map(); // processName → [{empId, empStatus, emp}]
+  const matchedEmpIds = new Set();
+  for (const [empId, empStatus] of employeeInProgress) {
+    const emp = employeeMap.get(empId);
+    for (const [procName, group] of processGroups) {
+      const bolMatch = [...group.bolIds].some(b => empStatus.bolIds.has(b));
+      const nameMatch = empStatus.processNames && empStatus.processNames.has(procName);
+      if (bolMatch || nameMatch) {
+        if (!processToEmployees.has(procName)) processToEmployees.set(procName, []);
+        processToEmployees.get(procName).push({ empId, empStatus, emp });
+        matchedEmpIds.add(empId);
+        break;
+      }
+    }
+  }
+
+  // Unmatched = all non-ShopC floor employees not matched to a process row
+  const unmatchedEmployees = [];
+  for (const [empId, empStatus] of allFloorEmployees) {
+    if (!matchedEmpIds.has(empId)) {
+      const emp = employeeMap.get(empId);
+      unmatchedEmployees.push({ empId, empStatus, emp });
+    }
+  }
+
+  // ── Employee card renderer ──
+  function renderEmployeeCards(empList, showProcess) {
+    return empList.map(({ empId, empStatus, emp }) => {
+      const name = emp ? emp.name : 'Unknown';
+      const p = empStatus.priority || '?';
+      const pClass = priorityClass(p);
+      const empPNum = parseInt(p);
+      const isAmber = (empPNum >= 4) && emp && [...p12GapBols].some(procName => {
+        const g = processGroups.get(procName);
+        if (!g) return false;
+        const qualified = [...g.bolIds].some(b => emp.qualifiedBolIds.has(b));
+        const alreadyOn = [...g.bolIds].some(b => empStatus.bolIds.has(b));
+        return qualified && !alreadyOn;
+      });
+      const qualTags = emp ? [...processGroups.entries()]
+        .filter(([, g]) => [...g.bolIds].some(b => emp.qualifiedBolIds.has(b)))
+        .map(([, g]) => `<span class="qual-tag">${escHtml(g.processName)}</span>`)
+        .slice(0, 4).join('') : '';
+      const amberNote = isAmber ? `<span class="amber-tag">⚡ Qualified for higher-priority gap</span>` : '';
+      const currentProcess = showProcess && empStatus.processName
+        ? `<div class="current-process">${escHtml(empStatus.processName)}</div>` : '';
+      return `
           <div class="employee-card ${isAmber ? 'amber-highlight' : ''}">
             <div class="emp-top">
               <span class="emp-name">${escHtml(name)}</span>
@@ -840,31 +846,31 @@ async function loadData() {
             ${amberNote}
             ${qualTags ? `<div class="qual-tags">${qualTags}</div>` : ''}
           </div>`;
-      }).join('');
-    }
+    }).join('');
+  }
 
-    // ── Render Unified Grid ──
-    const unifiedList = document.getElementById('unified-list');
-    if (sortedGroups.length === 0 && employeeInProgress.size === 0) {
-      unifiedList.innerHTML = '<div class="empty-state">No tasks in queue</div>';
-    } else {
-      let html = '';
-      for (const [procName, group] of sortedGroups) {
-        const onFloor = qualifiedOnFloor.get(procName) || 0;
-        const hasP1Gap = group.priorityCounts['1'] && onFloor === 0;
-        const rowClass = hasP1Gap ? 'unified-row gap-alert' : 'unified-row';
-        const floorClass = onFloor === 0 ? 'zero' : 'some';
-        const cols = [1,2,3,4,5].map(p => {
-          const count = group.priorityCounts[String(p)];
-          return `<span class="pcol">${count
-            ? `<span class="pill pill-${p}">${count}</span>`
-            : `<span class="pill-empty"></span>`
-          }</span>`;
-        }).join('');
-        const priorityTotal = Object.values(group.priorityCounts).reduce((s,n) => s+n, 0);
-        const total = group.totalCount || 0;
-        const empList = processToEmployees.get(procName) || [];
-        html += `
+  // ── Render Unified Grid ──
+  const unifiedList = document.getElementById('unified-list');
+  if (sortedGroups.length === 0 && employeeInProgress.size === 0) {
+    unifiedList.innerHTML = '<div class="empty-state">No tasks in queue</div>';
+  } else {
+    let html = '';
+    for (const [procName, group] of sortedGroups) {
+      const onFloor = qualifiedOnFloor.get(procName) || 0;
+      const hasP1Gap = group.priorityCounts['1'] && onFloor === 0;
+      const rowClass = hasP1Gap ? 'unified-row gap-alert' : 'unified-row';
+      const floorClass = onFloor === 0 ? 'zero' : 'some';
+      const cols = [1,2,3,4,5].map(p => {
+        const count = group.priorityCounts[String(p)];
+        return `<span class="pcol">${count
+          ? `<span class="pill pill-${p}">${count}</span>`
+          : `<span class="pill-empty"></span>`
+        }</span>`;
+      }).join('');
+      const priorityTotal = Object.values(group.priorityCounts).reduce((s,n) => s+n, 0);
+      const total = group.totalCount || 0;
+      const empList = processToEmployees.get(procName) || [];
+      html += `
           <div class="${rowClass}">
             <div class="process-cell">
               <div class="process-cell-grid">
@@ -878,20 +884,52 @@ async function loadData() {
               ${empList.length ? renderEmployeeCards(empList, false) : ''}
             </div>
           </div>`;
-      }
-      if (unmatchedEmployees.length > 0) {
-        html += `<div class="unmatched-divider">OTHER IN PROCESS</div>
+    }
+    if (unmatchedEmployees.length > 0) {
+      html += `<div class="unmatched-divider">OTHER IN PROCESS</div>
           <div class="unified-row">
             <div class="process-cell" style="color:var(--steel); font-size:0.8rem; font-style:italic; justify-content:center;">—</div>
             <div class="employee-cell">${renderEmployeeCards(unmatchedEmployees, true)}</div>
           </div>`;
-      }
-      unifiedList.innerHTML = html;
     }
+    unifiedList.innerHTML = html;
+  }
 
-    // ── Last refresh ──
-    document.getElementById('last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
-    if (typeof resetCountdown === 'function') resetCountdown();
+  // ── Last refresh ──
+  document.getElementById('last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  if (typeof resetCountdown === 'function') resetCountdown();
+}
+
+async function loadData(silent = false) {
+  // Check cache first
+  const cached = _loadCache('ba_tn_v1', 300000);
+  if (cached && silent === false) {
+    // Render from cache immediately (no overlay)
+    try {
+      await _processAndRender(cached.todoRecords, cached.inProgressRecords, cached.employeeRecords);
+    } catch(e) {}
+    // Then kick off a silent background refresh
+    setTimeout(() => loadData(true), 200);
+    return;
+  }
+
+  const overlay = document.getElementById('loading-overlay');
+  const errBanner = document.getElementById('error-banner');
+  if (!silent) overlay.style.display = 'flex';
+  errBanner.style.display = 'none';
+
+  try {
+    const todoFilter = `OR({Status}="To-Do",{Status}="Partial To-Do")`;
+    const [todoRecords, inProgressRecords, employeeRecords] = await Promise.all([
+      fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority'], todoFilter),
+      fetchAll(TABLES.production, ['Bill of Labor', 'Process (Glide)', 'Priority', 'Employee'], '{Status}="In Progress"'),
+      fetchAll(TABLES.employees,  ['Full Name', 'Default Qualifications', 'Shop C'], 'NOT({Inactive})'),
+    ]);
+
+    // Save to cache
+    _saveCache('ba_tn_v1', { todoRecords, inProgressRecords, employeeRecords });
+
+    await _processAndRender(todoRecords, inProgressRecords, employeeRecords);
 
   } catch (err) {
     const errBanner = document.getElementById('error-banner');
@@ -901,14 +939,6 @@ async function loadData() {
   } finally {
     document.getElementById('loading-overlay').style.display = 'none';
   }
-}
-
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
 
 // Countdown timer
@@ -924,7 +954,7 @@ function resetCountdown() {
     if (el) el.textContent = `auto-refresh ${countdownSecs}s`;
     if (countdownSecs <= 0) {
       countdownSecs = 120;
-      loadData();
+      loadData(true);  // silent background refresh
     }
   }, 1000);
 }
