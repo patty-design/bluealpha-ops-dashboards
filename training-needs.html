@@ -538,7 +538,8 @@ const IGNORED_PROCESSES = [
   'laser80w','laser80w2','laser155','cleannrollrig',
   'sew','kitting','3d print','testonly','amxcut','daddy/mama',
   'glue','bartackshopc','grommet',
-  'snapshopc','ss10hook','serger'
+  'snapshopc','ss10hook','serger',
+  "don'tuse",'dontuse'
 ];
 
 function isIgnoredProcess(name) {
@@ -551,8 +552,10 @@ function isIgnoredProcess(name) {
 // Consolidate multiple Airtable process names into a single display row.
 // Key: lowercase+no-spaces version of the Airtable name → canonical display name.
 const PROCESS_CONSOLIDATIONS = {
-  'hotcut':  'HotCut',
-  'hotcut2': 'HotCut',
+  'hotcut':   'HotCut',
+  'hotcut2':  'HotCut',
+  'coldcut':  'ColdCut',
+  'coldcut2': 'ColdCut',
 };
 
 function consolidateProcessName(name) {
