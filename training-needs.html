@@ -467,7 +467,7 @@
       <div id="last-refresh">—</div>
       <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
     </div>
-    <div id="refresh-countdown" style="margin-top:0.2rem; color:#9CA3AF; font-size:0.65rem; font-family:'Montserrat',sans-serif; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; text-align:right;">auto-refresh 60s</div>
+    <div id="refresh-countdown" style="margin-top:0.2rem; color:#9CA3AF; font-size:0.65rem; font-family:'Montserrat',sans-serif; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; text-align:right;">auto-refresh 120s</div>
   </div>
 </header>
 
@@ -912,7 +912,7 @@ function escHtml(str) {
 }
 
 // Countdown timer
-let countdownSecs = 60;
+let countdownSecs = 120;
 let countdownTimer = null;
 
 function resetCountdown() {
@@ -923,7 +923,7 @@ function resetCountdown() {
     const el = document.getElementById('refresh-countdown');
     if (el) el.textContent = `auto-refresh ${countdownSecs}s`;
     if (countdownSecs <= 0) {
-      countdownSecs = 60;
+      countdownSecs = 120;
       loadData();
     }
   }, 1000);
