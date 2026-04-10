@@ -1,7 +1,23 @@
 import os
+import io
 from flask import Flask, Response
+from PIL import Image
 
 app = Flask(__name__)
+
+# Build QR cards PDF from source JPGs on startup so Railway binary cache never stales it
+def _build_qr_pdf():
+    try:
+        page1 = Image.open('qr-cards-4up.jpg').convert('RGB')
+        page2 = Image.open('qr-cards-page2.jpg').convert('RGB')
+        buf = io.BytesIO()
+        page1.save(buf, format='PDF', resolution=150, save_all=True, append_images=[page2])
+        return buf.getvalue()
+    except Exception as e:
+        print(f'Warning: could not build QR PDF: {e}')
+        return None
+
+_QR_PDF = _build_qr_pdf()
 
 TOKEN           = os.environ.get('AIRTABLE_TOKEN', '')
 BASE_ID         = os.environ.get('AIRTABLE_BASE', '')
@@ -86,11 +102,16 @@ def hosanna_jpg():
 
 @app.route('/qr-cards-4up.pdf')
 def qr_cards_pdf():
-    with open('qr-cards-4up.pdf', 'rb') as f:
-        return Response(f.read(), mimetype='application/pdf', headers={
-            'Cache-Control': 'no-cache',
-            'Content-Disposition': 'inline; filename="qr-cards-4up.pdf"',
-        })
+    # Served from in-memory bytes built at startup from source JPGs
+    # (avoids Railway Docker layer cache serving stale binary PDFs)
+    data = _QR_PDF
+    if data is None:
+        with open('qr-cards-4up.pdf', 'rb') as f:
+            data = f.read()
+    return Response(data, mimetype='application/pdf', headers={
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Content-Disposition': 'inline; filename="qr-cards-4up.pdf"',
+    })
 
 @app.route('/qr-cards-4up.jpg')
 def qr_cards_jpg():
