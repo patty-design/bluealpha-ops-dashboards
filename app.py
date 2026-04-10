@@ -1,23 +1,38 @@
 import os
 import io
 from flask import Flask, Response
-from PIL import Image
+try:
+    from PIL import Image as _PILImage
+    _PIL_OK = True
+except ImportError:
+    _PILImage = None
+    _PIL_OK = False
 
 app = Flask(__name__)
 
+BUILD_VERSION = "20260410-purple"  # bump this to verify deployment
+
 # Build QR cards PDF from source JPGs on startup so Railway binary cache never stales it
 def _build_qr_pdf():
+    if not _PIL_OK:
+        print('Warning: Pillow not available, falling back to static PDF')
+        return None
     try:
-        page1 = Image.open('qr-cards-4up.jpg').convert('RGB')
-        page2 = Image.open('qr-cards-page2.jpg').convert('RGB')
+        page1 = _PILImage.open('qr-cards-4up.jpg').convert('RGB')
+        page2 = _PILImage.open('qr-cards-page2.jpg').convert('RGB')
         buf = io.BytesIO()
         page1.save(buf, format='PDF', resolution=150, save_all=True, append_images=[page2])
+        print(f'QR PDF built from JPGs OK ({buf.tell()} bytes)')
         return buf.getvalue()
     except Exception as e:
         print(f'Warning: could not build QR PDF: {e}')
         return None
 
 _QR_PDF = _build_qr_pdf()
+
+@app.route('/_version')
+def version():
+    return Response(f'{BUILD_VERSION} pillow={_PIL_OK} pdf_built={_QR_PDF is not None}', mimetype='text/plain')
 
 TOKEN           = os.environ.get('AIRTABLE_TOKEN', '')
 BASE_ID         = os.environ.get('AIRTABLE_BASE', '')
