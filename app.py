@@ -18,8 +18,10 @@ def _build_qr_pdf():
         print('Warning: Pillow not available, falling back to static PDF')
         return None
     try:
-        page1 = _PILImage.open('qr-cards-4up.jpg').convert('RGB')
-        page2 = _PILImage.open('qr-cards-page2.jpg').convert('RGB')
+        p1 = 'qr-cards-4up.png' if os.path.exists('qr-cards-4up.png') else 'qr-cards-4up.jpg'
+        p2 = 'qr-cards-page2.png' if os.path.exists('qr-cards-page2.png') else 'qr-cards-page2.jpg'
+        page1 = _PILImage.open(p1).convert('RGB')
+        page2 = _PILImage.open(p2).convert('RGB')
         buf = io.BytesIO()
         page1.save(buf, format='PDF', resolution=150, save_all=True, append_images=[page2])
         print(f'QR PDF built from JPGs OK ({buf.tell()} bytes)')
