@@ -8,23 +8,38 @@ except ImportError:
     _PILImage = None
     _PIL_OK = False
 
+try:
+    import img2pdf as _img2pdf
+    _IMG2PDF_OK = True
+except ImportError:
+    _img2pdf = None
+    _IMG2PDF_OK = False
+
 app = Flask(__name__)
 
-BUILD_VERSION = "20260410-purple"  # bump this to verify deployment
+BUILD_VERSION = "20260414-noBorder"  # bump this to verify deployment
 
 # Build QR cards PDF from source JPGs on startup so Railway binary cache never stales it
 def _build_qr_pdf():
+    # Prefer img2pdf for true lossless PNG→PDF (no JPEG recompression artifacts)
+    p1 = 'qr-cards-4up.png' if os.path.exists('qr-cards-4up.png') else 'qr-cards-4up.jpg'
+    p2 = 'qr-cards-page2.png' if os.path.exists('qr-cards-page2.png') else 'qr-cards-page2.jpg'
+    if _IMG2PDF_OK:
+        try:
+            data = _img2pdf.convert([p1, p2])
+            print(f'QR PDF built via img2pdf OK ({len(data)} bytes)')
+            return data
+        except Exception as e:
+            print(f'img2pdf failed ({e}), falling back to PIL')
     if not _PIL_OK:
         print('Warning: Pillow not available, falling back to static PDF')
         return None
     try:
-        p1 = 'qr-cards-4up.png' if os.path.exists('qr-cards-4up.png') else 'qr-cards-4up.jpg'
-        p2 = 'qr-cards-page2.png' if os.path.exists('qr-cards-page2.png') else 'qr-cards-page2.jpg'
         page1 = _PILImage.open(p1).convert('RGB')
         page2 = _PILImage.open(p2).convert('RGB')
         buf = io.BytesIO()
         page1.save(buf, format='PDF', resolution=150, save_all=True, append_images=[page2])
-        print(f'QR PDF built from JPGs OK ({buf.tell()} bytes)')
+        print(f'QR PDF built via PIL OK ({buf.tell()} bytes)')
         return buf.getvalue()
     except Exception as e:
         print(f'Warning: could not build QR PDF: {e}')
