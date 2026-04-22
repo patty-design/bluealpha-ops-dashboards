@@ -419,7 +419,11 @@
             todoByProcess['(No Process)'] = (todoByProcess['(No Process)'] || 0) + 1;
           } else {
             procs.forEach(recId => {
-              const name = procNames[recId] || recId;
+              let name = procNames[recId] || recId;
+              // Exclude "Don't Use"
+              if (name.trim().toLowerCase() === "don't use") return;
+              // Combine all Final Count variants into one
+              if (/^finalcount/i.test(name.replace(/\s/g, ''))) name = 'Final Count';
               todoByProcess[name] = (todoByProcess[name] || 0) + 1;
             });
           }
